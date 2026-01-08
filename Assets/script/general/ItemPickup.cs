@@ -1,18 +1,33 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 // À attacher sur le joueur (ou n'importe quel agent ramasseur)
 public class ItemPickup : MonoBehaviour
 {
-    [Header("Interaction")]
-    public KeyCode pickupKey = KeyCode.S;       // touche pour ramasser / lâcher / interagir
-    public float pickupRadius = 1.0f;           // rayon de détection pour ramasser
-    public float interactRadius = 1.2f;         // rayon de détection pour interagir
+    [Header("Interaction")] 
+    public KeyCode pickupKey = KeyCode.E;       // touche pour ramasser / lâcher
+    public float pickupRadius = 1.0f;           // rayon de détection
+    public LayerMask pickableLayer;             // layer des objets ramassables
 
-    [Header("Attach Point")]
+    [Header("Attach Point")] 
     public Transform handPoint;                 // où l'objet sera attaché
 
-    [Header("UI/Feedback (optionnel)")]
+    [Header("UI/Feedback (optionnel)")] 
     public bool showGizmo = true;
+
+    [Header("Mode Inventaire")] 
+    [Tooltip("Si vrai, on collecte directement dans l'inventaire au lieu de tenir l'objet en main.")]
+    public bool collectToInventory = true;
+    [Tooltip("Si vrai, l'objet est simplement désactivé dans la scène après collecte (il n'est pas détruit)." )]
+    public bool hideCollectedObject = true;
+
+    [Header("Collecte")]
+    [Tooltip("Historique simple des identifiants ramassés. Peut être utilisé par un inventaire plus tard." )]
+    public List<string> collectedItemIds = new List<string>();
+
+    public IReadOnlyList<string> CollectedItems => collectedItemIds; // accès en lecture seule pour l'extérieur
+
+    public System.Action<PickableItem> onItemCollected;
 
     PickableItem heldItem;
 
@@ -20,17 +35,13 @@ public class ItemPickup : MonoBehaviour
     {
         if (Input.GetKeyDown(pickupKey))
         {
-            if (heldItem != null)
+            if (heldItem == null)
             {
-                DropHeldItem();
+                TryPickupNearest();
             }
             else
             {
-                // Priorité au ramassage, sinon interaction (panneau, pont, etc.)
-                if (!TryPickupNearest())
-                {
-                    TryInteractNearest();
-                }
+                DropHeldItem();
             }
         }
 
@@ -41,16 +52,52 @@ public class ItemPickup : MonoBehaviour
         }
     }
 
-    bool TryPickupNearest()
+    void TryPickupNearest()
     {
-        // Cherche le plus proche PickableItem
-        var item = FindNearestComponent<PickableItem>(pickupRadius);
-        if (item == null) return false;
+        // Cherche le plus proche collider sur le layer ramassable
+        Collider2D nearest = null;
+        float nearestDist = float.MaxValue;
+        var hits = Physics2D.OverlapCircleAll(transform.position, pickupRadius, pickableLayer);
+        foreach (var h in hits)
+        {
+            float d = Vector2.Distance(transform.position, h.transform.position);
+            if (d < nearestDist)
+            {
+                nearestDist = d;
+                nearest = h;
+            }
+        }
 
-        Transform holder = handPoint != null ? handPoint : transform;
-        item.OnPicked(holder);
-        heldItem = item;
-        return true;
+        if (nearest != null)
+        {
+            var item = nearest.GetComponent<PickableItem>();
+            if (item != null)
+            {
+                Transform holder = handPoint != null ? handPoint : transform;
+                bool attachToHolder = !collectToInventory; // si inventaire, on ne l'attache pas à la main
+
+                item.OnPicked(holder, attachToHolder);
+
+                // Stocke ce qui a été ramassé pour un futur inventaire/quête
+                collectedItemIds.Add(item.itemId);
+                onItemCollected?.Invoke(item);
+
+                if (collectToInventory)
+                {
+                    // On ne garde rien en main, on range dans le "sac"
+                    heldItem = null;
+                    if (hideCollectedObject)
+                    {
+                        item.gameObject.SetActive(false); // l'objet disparaît de la scène mais reste en mémoire
+                    }
+                }
+                else
+                {
+                    // Comportement précédent: porter l'objet
+                    heldItem = item;
+                }
+            }
+        }
     }
 
     void DropHeldItem()
@@ -60,48 +107,10 @@ public class ItemPickup : MonoBehaviour
         heldItem = null;
     }
 
-    bool TryInteractNearest()
-    {
-        var interactable = FindNearestComponent<IInteractable>(interactRadius);
-        if (interactable == null)
-        {
-            Debug.Log("[ItemPickup] Aucun interactable trouvé dans le rayon");
-            return false;
-        }
-
-        Debug.Log($"[ItemPickup] Interaction avec {interactable.GetType().Name}");
-        interactable.Interact(this);
-        return true;
-    }
-
-    T FindNearestComponent<T>(float radius) where T : class
-    {
-        T nearestComponent = null;
-        float nearestDist = float.MaxValue;
-        var hits = Physics2D.OverlapCircleAll(transform.position, radius);
-        foreach (var h in hits)
-        {
-            // Cherche l'interactable sur le collider, son parent ou ses enfants
-            var comp = h.GetComponent<T>() ?? h.GetComponentInParent<T>() ?? h.GetComponentInChildren<T>();
-            if (comp == null) continue;
-
-            float d = Vector2.Distance(transform.position, h.transform.position);
-            if (d < nearestDist)
-            {
-                nearestDist = d;
-                nearestComponent = comp;
-            }
-        }
-
-        return nearestComponent;
-    }
-
     void OnDrawGizmosSelected()
     {
         if (!showGizmo) return;
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, pickupRadius);
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawWireSphere(transform.position, interactRadius);
     }
 }

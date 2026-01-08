@@ -50,7 +50,8 @@ public class PickableItem : MonoBehaviour
     }
 
     // Appelé par le script du joueur lorsqu'il ramasse
-    public void OnPicked(Transform holder)
+    // attachToHolder=false permet de simplement marquer l'objet comme ramassé sans l'accrocher (inventaire)
+    public void OnPicked(Transform holder, bool attachToHolder = true)
     {
         if (disableColliderOnPickup)
         {
@@ -72,11 +73,14 @@ public class PickableItem : MonoBehaviour
             rb2d.gravityScale = 0f;
         }
 
-        // Attacher à la main/holder
-        transform.SetParent(holder);
-        if (attachPoint == null)
+        if (attachToHolder)
         {
-            transform.localPosition = Vector3.zero;
+            // Attacher à la main/holder
+            transform.SetParent(holder);
+            if (attachPoint == null)
+            {
+                transform.localPosition = Vector3.zero;
+            }
         }
 
         if (destroyOnPickup)
