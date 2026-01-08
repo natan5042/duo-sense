@@ -17,6 +17,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/niveau_sport/fin_niveau2.unity
     guid: ee7aac50d9e08ac4eb48d3d6ce23eefd
+  - enabled: 1
+    path: Assets/Scenes/General/hub.unity
+    guid: 9d246632fb3203e4c843193a5ec8ed39
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

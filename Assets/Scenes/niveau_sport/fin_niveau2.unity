@@ -273,7 +273,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -1
   m_Sprite: {fileID: 2494671544206886372, guid: ce0552d5c086df449abe3da835b4c334, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -851,12 +851,12 @@ Transform:
   m_GameObject: {fileID: 558353333}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 3.8131766, y: -0.49792808, z: 0}
-  m_LocalScale: {x: 0.8806413, y: 0.9220889, z: 1}
+  m_LocalPosition: {x: -2.3400002, y: -1.19, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 381824185}
-  m_Father: {fileID: 693956453}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &605635716
 GameObject:
@@ -918,7 +918,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: -1
+  m_SortingOrder: -10
   m_Sprite: {fileID: 4619284853189612238, guid: 89a1f276e5bda2244b86e02d3867f35e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -1192,7 +1192,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1192207255}
-  - {fileID: 558353339}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &835439926
@@ -1928,7 +1927,7 @@ MonoBehaviour:
   bipSource: {fileID: 1650637706}
   bipClip: {fileID: 8300000, guid: a95dac8c45b47e149a51df36e5367590, type: 3}
   bipInterval: 2
-  allowedWindow: 1
+  allowedWindow: 0.5
   marker: {fileID: 1839218168}
   goodZone: {fileID: 979764411}
   markerRange: {x: -8, y: 8}
@@ -8419,7 +8418,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 2.98537, y: 0}
+  m_Offset: {x: 7.578245, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -8429,7 +8428,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 5.3814263, y: 3.96}
+  m_Size: {x: 14.567177, y: 3.96}
   m_EdgeRadius: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
@@ -8437,6 +8436,7 @@ SceneRoots:
   m_Roots:
   - {fileID: 1487544127}
   - {fileID: 693956453}
+  - {fileID: 558353339}
   - {fileID: 392052254}
   - {fileID: 605635718}
   - {fileID: 1537296461}
