@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class DoorTeleport : MonoBehaviour
 {
-    [Header("Téléportation")]
-    [Tooltip("Position où Iris sera téléportée")]
+    [Header("Tï¿½lï¿½portation")]
+    [Tooltip("Position oï¿½ Iris sera tï¿½lï¿½portï¿½e")]
     public Transform teleportDestination;
   
-    [Tooltip("Ou spécifiez directement une position")]
+    [Tooltip("Ou spï¿½cifiez directement une position")]
     public Vector3 destinationPosition;
     
     [Tooltip("Utiliser le Transform ou la position Vector3")]
@@ -19,74 +19,81 @@ public class DoorTeleport : MonoBehaviour
     [Tooltip("Nom du joueur qui peut utiliser la porte (Iris)")]
     public string targetPlayerName = "Iris";
 
-    [Header("Caméra")]
-    [Tooltip("Référence au script CameraFollow (sur la caméra principale)")]
+    [Header("CamÃ©ra")]
+    [Tooltip("RÃ©fÃ©rence au script CameraFollow (sur la camÃ©ra principale)")]
     public CameraFollow cameraFollowScript;
-    
-    [Tooltip("Forcer la caméra à suivre uniquement Iris pendant le puzzle")]
+
+    [Tooltip("Forcer la camÃ©ra Ã  suivre uniquement Iris pendant le puzzle")]
     public bool overrideCameraToIris = true;
 
-    [Header("Gravité")]
-    [Tooltip("Désactiver la gravité d'Iris pendant le puzzle")]
+    [Header("GravitÃ©")]
+    [Tooltip("DÃ©sactiver la gravitÃ© d'Iris pendant le puzzle")]
     public bool disableGravityDuringPuzzle = true;
-    
-    [Tooltip("Touche pour sortir du puzzle et restaurer la gravité")]
+
+    [Tooltip("Touche pour sortir du puzzle et restaurer la gravitÃ©")]
     public KeyCode exitPuzzleKey = KeyCode.Escape;
 
     [Header("Taille du personnage")]
-    [Tooltip("Réduire la taille d'Iris pendant le puzzle")]
+    [Tooltip("RÃ©duire la taille d'Iris pendant le puzzle")]
     public bool scaleDownPlayer = true;
-    
-    [Tooltip("Multiplicateur de taille (0.5 = moitié, 1.0 = normal)")]
+
+    [Tooltip("Multiplicateur de taille (0.5 = moitiÃ©, 1.0 = normal)")]
     [Range(0.1f, 1.0f)]
     public float scaleMultiplier = 0.5f;
+
+    [Header("Puzzle")]
+    [Tooltip("RÃ©fÃ©rence au contrÃ´leur du puzzle")]
+    public PuzzleLeverController puzzleController;
+    [Tooltip("Mouvement d'Iris pour pouvoir le dÃ©sactiver pendant le puzzle")]
+    public PlayerMovement irisMovement;
+    [Tooltip("Point de focus camÃ©ra pour afficher tout le puzzle")]
+    public Transform puzzleCameraAnchor;
+    [Tooltip("Taille de camÃ©ra pour voir tout le puzzle")]
+    public float puzzleCameraSize = 19f;
 
     [Header("Feedback Visuel (Optionnel)")]
     public bool showPrompt = true;
     public string promptText = "Appuyez sur [S] pour entrer";
-    
+
     [Header("Audio (Optionnel)")]
     public AudioSource doorSound;
 
-    // État interne
     private bool playerInRange = false;
     private GameObject playerInZone = null;
     private bool puzzleActive = false;
+    private GameObject irisObject;
     private float originalGravityScale = 1f;
     private Vector3 originalScale;
     private Rigidbody2D irisRigidbody;
 
     void Start()
     {
- // Trouver automatiquement le CameraFollow si non assigné
-  if (cameraFollowScript == null)
-   {
+        if (cameraFollowScript == null)
+        {
             Camera mainCam = Camera.main;
-         if (mainCam != null)
+            if (mainCam != null)
             {
-         cameraFollowScript = mainCam.GetComponent<CameraFollow>();
-     if (cameraFollowScript == null)
-    {
-  Debug.LogWarning("[DoorTeleport] CameraFollow non trouvé sur la caméra principale. Assignez-le manuellement dans l'Inspector.");
-           }
-       }
+                cameraFollowScript = mainCam.GetComponent<CameraFollow>();
+                if (cameraFollowScript == null)
+                {
+                    Debug.LogWarning("[DoorTeleport] CameraFollow non trouvÃ© sur la camÃ©ra principale. Assignez-le manuellement dans l'Inspector.");
+                }
+            }
         }
     }
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        // Vérifier que c'est un joueur avec le bon nom (Iris)
-        if (other.CompareTag("Player") && other.name.Contains(targetPlayerName))
-        {
-      playerInRange = true;
-            playerInZone = other.gameObject;
-            
-   if (showPrompt)
-  {
-    Debug.Log(promptText);
-      // TODO: Afficher un UI prompt au-dessus de la porte si vous avez un système d'UI
-  }
-      }
+                if (other.CompareTag("Player") && other.name.Contains(targetPlayerName))
+                {
+                        playerInRange = true;
+                        playerInZone = other.gameObject;
+
+                        if (showPrompt)
+                        {
+                                Debug.Log(promptText);
+                        }
+                }
     }
 
     void OnTriggerExit2D(Collider2D other)
@@ -100,112 +107,130 @@ public class DoorTeleport : MonoBehaviour
 
     void Update()
     {
-     // Si Iris est dans la zone et appuie sur S
         if (playerInRange && Input.GetKeyDown(interactKey) && playerInZone != null && !puzzleActive)
         {
             TeleportPlayer();
         }
 
-    // Touche pour sortir du puzzle et restaurer les paramètres
         if (puzzleActive && Input.GetKeyDown(exitPuzzleKey))
-  {
-   ExitPuzzleMode();
+        {
+            ExitPuzzleMode();
         }
     }
 
     void TeleportPlayer()
     {
-    if (playerInZone == null) return;
+        if (playerInZone == null) return;
 
-        // Déterminer la position de destination
- Vector3 targetPos;
+        irisObject = playerInZone;
+
+        Vector3 targetPos;
         if (useTransform && teleportDestination != null)
         {
-      targetPos = teleportDestination.position;
+            targetPos = teleportDestination.position;
         }
         else
         {
-targetPos = destinationPosition;
+            targetPos = destinationPosition;
         }
 
-        // Téléporter Iris
-    playerInZone.transform.position = targetPos;
+        irisObject.transform.position = targetPos;
 
-        // Sauvegarder et modifier la taille d'Iris
-  if (scaleDownPlayer)
-  {
-         originalScale = playerInZone.transform.localScale;
-            playerInZone.transform.localScale = originalScale * scaleMultiplier;
-       Debug.Log($"[DoorTeleport] Taille d'Iris réduite à {scaleMultiplier * 100}% de la taille originale.");
+        if (scaleDownPlayer)
+        {
+            originalScale = irisObject.transform.localScale;
+            irisObject.transform.localScale = originalScale * scaleMultiplier;
+            Debug.Log($"[DoorTeleport] Taille d'Iris rÃ©duite Ã  {scaleMultiplier * 100}% de la taille originale.");
         }
 
-        // Réinitialiser la vélocité pour éviter qu'elle continue à bouger
-   irisRigidbody = playerInZone.GetComponent<Rigidbody2D>();
+        irisRigidbody = irisObject.GetComponent<Rigidbody2D>();
         if (irisRigidbody != null)
         {
-    irisRigidbody.linearVelocity = Vector2.zero;
-     irisRigidbody.angularVelocity = 0f;
+            irisRigidbody.linearVelocity = Vector2.zero;
+            irisRigidbody.angularVelocity = 0f;
 
- // Sauvegarder la gravité originale et la désactiver si demandé
-          if (disableGravityDuringPuzzle)
-        {
-          originalGravityScale = irisRigidbody.gravityScale;
-irisRigidbody.gravityScale = 0f;
-     Debug.Log("[DoorTeleport] Gravité d'Iris désactivée pour le puzzle.");
-       }
+            if (disableGravityDuringPuzzle)
+            {
+                originalGravityScale = irisRigidbody.gravityScale;
+                irisRigidbody.gravityScale = 0f;
+                Debug.Log("[DoorTeleport] GravitÃ© d'Iris dÃ©sactivÃ©e pour le puzzle.");
+            }
         }
 
- // Forcer la caméra à suivre uniquement Iris
-        if (overrideCameraToIris && cameraFollowScript != null)
-   {
-    cameraFollowScript.OverrideCamera(true);
-            Debug.Log("[DoorTeleport] Caméra forcée sur Iris uniquement.");
-    }
+        if (cameraFollowScript != null)
+        {
+            if (puzzleCameraAnchor != null)
+            {
+                cameraFollowScript.SetManualFocus(puzzleCameraAnchor, puzzleCameraSize, true);
+            }
+            else if (overrideCameraToIris)
+            {
+                cameraFollowScript.OverrideCamera(true);
+            }
+            Debug.Log("[DoorTeleport] CamÃ©ra rÃ©glÃ©e pour le puzzle.");
+        }
 
-        // Jouer un son si disponible
+        if (irisMovement != null)
+        {
+            irisMovement.enabled = false;
+        }
+
+        if (puzzleController != null)
+        {
+            puzzleController.Activate();
+        }
+
         if (doorSound != null && doorSound.clip != null)
         {
             doorSound.Play();
         }
 
-  Debug.Log($"Iris téléportée à {targetPos} - Mode Puzzle activé");
-        
-        // Marquer le puzzle comme actif
+        Debug.Log($"Iris tÃ©lÃ©portÃ©e Ã  {targetPos} - Mode Puzzle activÃ©");
+
         puzzleActive = true;
-        
-    // Réinitialiser l'état du trigger
         playerInRange = false;
         playerInZone = null;
     }
 
-    // Fonction publique pour sortir du mode puzzle (peut être appelée par un autre script)
+    // Fonction publique pour sortir du mode puzzle (peut ï¿½tre appelï¿½e par un autre script)
     public void ExitPuzzleMode()
     {
-      if (!puzzleActive) return;
+        if (!puzzleActive) return;
 
-      // Restaurer la taille d'Iris
- if (scaleDownPlayer && playerInZone != null)
+        if (scaleDownPlayer && irisObject != null)
         {
-          playerInZone.transform.localScale = originalScale;
-            Debug.Log("[DoorTeleport] Taille d'Iris restaurée.");
+            irisObject.transform.localScale = originalScale;
+            Debug.Log("[DoorTeleport] Taille d'Iris restaurÃ©e.");
         }
 
-     // Restaurer la gravité d'Iris
         if (disableGravityDuringPuzzle && irisRigidbody != null)
         {
-       irisRigidbody.gravityScale = originalGravityScale;
-        Debug.Log("[DoorTeleport] Gravité d'Iris restaurée.");
-    }
-
-        // Restaurer le comportement normal de la caméra (retour au suivi duo)
-        if (overrideCameraToIris && cameraFollowScript != null)
-        {
-   cameraFollowScript.OverrideCamera(false);
-       Debug.Log("[DoorTeleport] Caméra restaurée en mode duo.");
+            irisRigidbody.gravityScale = originalGravityScale;
+            Debug.Log("[DoorTeleport] GravitÃ© d'Iris restaurÃ©e.");
         }
 
-   puzzleActive = false;
-        Debug.Log("[DoorTeleport] Mode Puzzle désactivé.");
+        if (cameraFollowScript != null)
+        {
+            cameraFollowScript.SetManualFocus(null, 0f, false);
+            if (overrideCameraToIris)
+            {
+                cameraFollowScript.OverrideCamera(false);
+            }
+            Debug.Log("[DoorTeleport] CamÃ©ra restaurÃ©e en mode duo.");
+        }
+
+        if (irisMovement != null)
+        {
+            irisMovement.enabled = true;
+        }
+
+        if (puzzleController != null)
+        {
+            puzzleController.Deactivate();
+        }
+
+        puzzleActive = false;
+        Debug.Log("[DoorTeleport] Mode Puzzle dÃ©sactivÃ©.");
     }
 
     // Gizmo pour visualiser la zone de trigger et la destination
