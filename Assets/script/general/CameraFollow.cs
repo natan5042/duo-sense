@@ -9,6 +9,8 @@ public class CameraFollow : MonoBehaviour
     [Header("Camera Settings")]
     public float smoothSpeed = 0.125f;       // Vitesse de suivi standard
     public Vector3 offset = new Vector3(0, 0, -10); // Décalage caméra
+    [Tooltip("Ajuste la taille ortho globale pour reculer/zoomer la caméra (valeur positive = plus loin).")]
+    public float globalZoomOut = 0f;
 
     [Header("Distance Settings")]
     public float minDistance = 3f;
@@ -74,7 +76,7 @@ public class CameraFollow : MonoBehaviour
             {
                 cam.orthographicSize = Mathf.Lerp(
                     cam.orthographicSize,
-                    manualSize,
+                    manualSize + globalZoomOut,
                     zoomSmoothSpeed * Time.deltaTime
                 );
             }
@@ -164,7 +166,7 @@ public class CameraFollow : MonoBehaviour
         {
             cam.orthographicSize = Mathf.Lerp(
                 cam.orthographicSize, 
-                desiredSize, 
+                desiredSize + globalZoomOut, 
                 zoomSmoothSpeed * Time.deltaTime
             );
         }
