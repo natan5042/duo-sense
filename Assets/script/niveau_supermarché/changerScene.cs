@@ -1,32 +1,20 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 public class DoorOpening : MonoBehaviour
 {
     [Header("Interaction")]
-    [Tooltip("Distance à partir de laquelle le joueur peut interagir pour entrer")]
+    [Tooltip("Distance à partir de laquelle le joueur peut interagir")]
     public float interactionRadius = 3f;
-    [Tooltip("Touche d'interaction")] public KeyCode interactKey = KeyCode.E;
-    [Tooltip("Nom de la scène à charger (exact, et ajoutée au Build Settings). Vous pouvez déposer une Scene depuis le Project (éditeur).")]
-    public string sceneToLoad;
+    [Tooltip("Touche d'interaction")] 
+    public KeyCode interactKey = KeyCode.E;
 
-#if UNITY_EDITOR
-    [Header("Editor: assign a SceneAsset (optional)")]
-    [Tooltip("Glisser-déposer une scène depuis le Project ici (la scène doit être ajoutée au Build Settings). Ceci remplit automatiquement 'sceneToLoad'.")]
-    public SceneAsset sceneAsset;
-
-    void OnValidate()
-    {
-        if (sceneAsset != null)
-        {
-            // Sync the scene name for runtime use
-            sceneToLoad = sceneAsset.name;
-        }
-    }
-#endif
+    [Header("Teleportation")]
+    [Tooltip("Position de destination du téléport")]
+    public Vector3 teleportDestination = Vector3.zero;
+    [Tooltip("Nom de cette porte (pour debug)")]
+    public string doorName = "Porte";
+    [Tooltip("Délai après téléportation avant de pouvoir re-téléporter")]
+    public float teleportCooldown = 1f;
 
     [Header("Player")]
     [Tooltip("Glissez ici l'objet joueur depuis la Hierarchy (optionnel). Si laissé vide, le script cherchera par tag 'Player'.")]
@@ -35,6 +23,8 @@ public class DoorOpening : MonoBehaviour
 
     [Header("Debug")]
     public bool debugLogs = false;
+
+    private static float lastTeleportTime = -999f;
 
     void Start()
     {
@@ -47,23 +37,27 @@ public class DoorOpening : MonoBehaviour
 
     void Update()
     {
-        if (string.IsNullOrEmpty(sceneToLoad)) return; // rien à faire si pas de scène définie
+        // Vérifier le cooldown global
+        if (Time.time - lastTeleportTime < teleportCooldown)
+            return;
 
-        Transform target = player;
-        if (target == null)
+        // Trouver TOUS les joueurs avec le tag
+        GameObject[] allPlayers = GameObject.FindGameObjectsWithTag(playerTag);
+        
+        foreach (GameObject p in allPlayers)
         {
-            GameObject p = GameObject.FindGameObjectWithTag(playerTag);
-            if (p != null) target = p.transform;
-        }
-        if (target == null) return;
+            Transform playerTransform = p.transform;
+            float dist = Vector3.Distance(playerTransform.position, transform.position);
+            bool inRange = dist <= interactionRadius;
 
-        float dist = Vector3.Distance(target.position, transform.position);
-        bool inRange = dist <= interactionRadius;
-
-        if (inRange && Input.GetKeyDown(interactKey))
-        {
-            if (debugLogs) Debug.Log(name + " : Player in range (" + dist.ToString("F2") + ") -> LoadScene(" + sceneToLoad + ")");
-            SceneManager.LoadScene(sceneToLoad);
+            // Chaque joueur qui appuie sur E se téléporte individuellement
+            if (inRange && Input.GetKeyDown(interactKey))
+            {
+                Debug.Log($"[{doorName}] Téléport de {p.name} vers {teleportDestination}");
+                playerTransform.position = teleportDestination;
+                lastTeleportTime = Time.time;
+                return; // Cooldown global, empêche les doubles TP
+            }
         }
     }
 
@@ -75,3 +69,4 @@ public class DoorOpening : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, interactionRadius);
     }
 }
+
