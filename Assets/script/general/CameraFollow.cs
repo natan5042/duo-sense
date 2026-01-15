@@ -31,6 +31,11 @@ public class CameraFollow : MonoBehaviour
     public Transform manualTarget;
     public float manualSize = 19f;
 
+    [Header("Camera Bounds")]
+    public bool useCameraBounds = true;
+    public Vector2 boundsMin = new Vector2(-50, -50); // Limite inferieure gauche
+    public Vector2 boundsMax = new Vector2(50, 50);   // Limite superieure droite
+
     private Camera cam;
     private Transform currentTarget; // La cible que la caméra doit suivre (milieu ou Iris)
 
@@ -161,6 +166,12 @@ public class CameraFollow : MonoBehaviour
         // Applique la position, en conservant le Z de la caméra
         transform.position = new Vector3(smoothedPosition.x, smoothedPosition.y, transform.position.z);
 
+        // Appliquer les limites de caméra
+        if (useCameraBounds && cam != null)
+        {
+            transform.position = ClampCameraPosition(transform.position);
+        }
+
         // Ajuster le zoom (orthographique)
         if (cam != null && cam.orthographic)
         {
@@ -173,4 +184,37 @@ public class CameraFollow : MonoBehaviour
     }
 
     // ... (La fonction OnDrawGizmosSelected reste inchangée) ...
+    
+    /// <summary>
+    /// Restreint la position de la caméra pour qu'elle reste dans les limites définies
+    /// en tenant compte de la taille de la caméra (orthographique).
+    /// </summary>
+    private Vector3 ClampCameraPosition(Vector3 cameraPos)
+    {
+        if (cam == null) return cameraPos;
+
+        // Obtenir la hauteur et la largeur visibles de la caméra
+        float cameraHeight = cam.orthographicSize * 2f;
+        float cameraWidth = cameraHeight * cam.aspect;
+
+        // Calculer les demi-dimensions
+        float halfWidth = cameraWidth / 2f;
+        float halfHeight = cameraHeight / 2f;
+
+        // Restreindre X
+        float clampedX = Mathf.Clamp(
+            cameraPos.x,
+            boundsMin.x + halfWidth,
+            boundsMax.x - halfWidth
+        );
+
+        // Restreindre Y
+        float clampedY = Mathf.Clamp(
+            cameraPos.y,
+            boundsMin.y + halfHeight,
+            boundsMax.y - halfHeight
+        );
+
+        return new Vector3(clampedX, clampedY, cameraPos.z);
+    }
 }
