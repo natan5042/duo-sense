@@ -2,6 +2,9 @@
     "version": "1.0",
     "unlockedScenes": [
         "Level1",
-        "SampleScene"
+        "SampleScene",
+        "niveau2",
+        "hub",
+        "labyrinthe"
     ]
 }

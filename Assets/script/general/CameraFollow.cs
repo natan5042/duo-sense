@@ -34,6 +34,19 @@ public class CameraFollow : MonoBehaviour
     public string wheelchairTagHint = "Player";
     public string wheelchairNameContains = "Achille";
 
+    [Header("Override simple (Hub)")]
+    [Tooltip("Forcer la caméra à suivre une seule cible simple (ex: Hub). Ignore le duo/zoom auto.")]
+    public bool forceOverrideTarget = false;
+    public Transform overrideTarget;
+    public float overrideOrthoSize = 7f;
+
+    [Header("Override par tag (secours scène")]
+    [Tooltip("Si activé, cherche chaque frame une cible par tag/nom et suit uniquement elle (utile niveau 2).")]
+    public bool forceSingleByTag = false;
+    public string singleTag = "Player";
+    public string singleNameContains = "";
+    public float singleOrthoSize = 7f;
+
     [Header("Limits")]
     [Tooltip("Ignore les limites quand on suit Iris seule (évite de " +
              "bloquer la caméra si la zone de fin est hors bornes).")]
@@ -83,8 +96,51 @@ public class CameraFollow : MonoBehaviour
             TryReacquireTargets(); // Evite de rester bloqué si la référence a été perdue
         }
 
-        bool hasWheelchair = wheelchairTarget != null;
-        bool hasPlayer = playerTarget != null;
+        // Mode override simple (utile pour le Hub: une seule cible assignée)
+        if (forceOverrideTarget && overrideTarget != null)
+        {
+            Vector3 desired = overrideTarget.position + offset;
+            Vector3 smoothed = Vector3.Lerp(transform.position, desired, smoothSpeed);
+            transform.position = new Vector3(smoothed.x, smoothed.y, transform.position.z);
+
+            if (cam != null && cam.orthographic)
+            {
+                cam.orthographicSize = Mathf.Lerp(
+                    cam.orthographicSize,
+                    overrideOrthoSize + globalZoomOut,
+                    zoomSmoothSpeed * Time.deltaTime
+                );
+            }
+            return;
+        }
+
+        // Mode override par tag (secours pour scènes où les refs ne sont pas assignées)
+        if (forceSingleByTag)
+        {
+            if (overrideTarget == null)
+            {
+                overrideTarget = FindTarget(singleTag, singleNameContains);
+            }
+            if (overrideTarget != null)
+            {
+                Vector3 desired = overrideTarget.position + offset;
+                Vector3 smoothed = Vector3.Lerp(transform.position, desired, smoothSpeed);
+                transform.position = new Vector3(smoothed.x, smoothed.y, transform.position.z);
+
+                if (cam != null && cam.orthographic)
+                {
+                    cam.orthographicSize = Mathf.Lerp(
+                        cam.orthographicSize,
+                        singleOrthoSize + globalZoomOut,
+                        zoomSmoothSpeed * Time.deltaTime
+                    );
+                }
+                return;
+            }
+        }
+
+        bool hasWheelchair = wheelchairTarget != null && wheelchairTarget.gameObject.activeInHierarchy;
+        bool hasPlayer = playerTarget != null && playerTarget.gameObject.activeInHierarchy;
 
         // Aucun cible valide
         if (!hasWheelchair && !hasPlayer) return;
@@ -152,7 +208,13 @@ public class CameraFollow : MonoBehaviour
                 currentSmoothSpeed = smoothSpeed;
 
                 // Si la distance est trop grande, re-focus sur le fauteuil (Achille)
-                if (distance > maxDistance)
+                if (distance > maxDistance * 2f) // si l'autre est vraiment loin, on suit Iris
+                {
+                    currentTarget = playerTarget;
+                    desiredPosition = currentTarget.position + offset;
+                    desiredSize = singlePlayerZoom;
+                }
+                else if (distance > maxDistance)
                 {
                     currentTarget = wheelchairTarget;
                     desiredPosition = currentTarget.position + offset;
@@ -187,8 +249,8 @@ public class CameraFollow : MonoBehaviour
         // Appliquer les limites de caméra
         bool shouldClamp = useCameraBounds && cam != null;
 
-        // Permet de sortir des bornes quand on suit uniquement Iris
-        if (ignoreBoundsInSingleMode && followSinglePlayer)
+        // Permet de sortir des bornes quand on suit un seul perso (mode solo ou override Iris)
+        if (ignoreBoundsInSingleMode && (followSinglePlayer || !hasWheelchair))
         {
             shouldClamp = false;
         }

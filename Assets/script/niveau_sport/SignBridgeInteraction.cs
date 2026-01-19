@@ -3,6 +3,10 @@ using UnityEngine;
 // À placer sur la pancarte avec la coupe
 public class SignBridgeInteraction : MonoBehaviour, IInteractable
 {
+    [Header("Interaction")]
+    public KeyCode interactKey = KeyCode.S; // touche utilisée dans le niveau
+    public string playerTag = "Player";
+
     [Header("Références visuelles")]
     public GameObject trophySign;       // la pancarte visible au début
     public GameObject arrowBehind;      // la flèche cachée derrière
@@ -13,6 +17,18 @@ public class SignBridgeInteraction : MonoBehaviour, IInteractable
     public AudioClip interactionClip;
 
     bool alreadyUsed;
+
+    void OnTriggerStay2D(Collider2D other)
+    {
+        if (alreadyUsed) return;
+        if (!other.CompareTag(playerTag)) return;
+        if (Input.GetKeyDown(interactKey))
+        {
+            // On passe null pour l'actor si on n'a pas ItemPickup sur ce joueur dans ce niveau
+            var pickup = other.GetComponent<ItemPickup>();
+            Interact(pickup);
+        }
+    }
 
     public void Interact(ItemPickup actor)
     {
