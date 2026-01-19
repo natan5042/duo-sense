@@ -7,6 +7,8 @@ public class LevelTransitionZone : MonoBehaviour
 {
     [Header("Scene")]
     [SerializeField] private string sceneName = "niveau2";
+    [SerializeField] private string nextSceneToUnlock = "niveau2"; // Scène à débloquer quand on traverse
+    [SerializeField] private bool unlockTargetSceneToo = true;     // Débloque aussi sceneName si coché
 
     [Header("Players")]
     [SerializeField] private PlayerMovement player;
@@ -122,6 +124,26 @@ public class LevelTransitionZone : MonoBehaviour
         {
             Debug.Log($"[LevelTransitionZone] Chargement de la scène '{sceneName}'.");
         }
+
+        // Persiste la progression de niveaux
+        if (!string.IsNullOrWhiteSpace(nextSceneToUnlock))
+        {
+            bool added = LevelProgressManager.Unlock(nextSceneToUnlock);
+            if (logEvents && added)
+            {
+                Debug.Log($"[LevelTransitionZone] Déblocage de la scène suivante '{nextSceneToUnlock}'.");
+            }
+        }
+
+        if (unlockTargetSceneToo && !string.IsNullOrWhiteSpace(sceneName))
+        {
+            bool addedTarget = LevelProgressManager.Unlock(sceneName);
+            if (logEvents && addedTarget)
+            {
+                Debug.Log($"[LevelTransitionZone] Déblocage de la scène de destination '{sceneName}'.");
+            }
+        }
+
         SceneManager.LoadScene(sceneName);
     }
 }

@@ -607,9 +607,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pickupKey: 98
   pickupRadius: 1
-  interactRadius: 1.2
+  pickableLayer:
+    serializedVersion: 2
+    m_Bits: 0
   handPoint: {fileID: 0}
   showGizmo: 1
+  collectToInventory: 1
+  hideCollectedObject: 1
+  collectedItemIds: []
 --- !u!60 &558353336
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -982,9 +987,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pickupKey: 115
   pickupRadius: 1
-  interactRadius: 1.2
+  pickableLayer:
+    serializedVersion: 2
+    m_Bits: 0
   handPoint: {fileID: 0}
   showGizmo: 1
+  collectToInventory: 1
+  hideCollectedObject: 1
+  collectedItemIds: []
 --- !u!114 &693956447
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -999,9 +1009,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pickupKey: 101
   pickupRadius: 1
-  interactRadius: 1.2
+  pickableLayer:
+    serializedVersion: 2
+    m_Bits: 0
   handPoint: {fileID: 0}
   showGizmo: 1
+  collectToInventory: 1
+  hideCollectedObject: 1
+  collectedItemIds: []
 --- !u!114 &693956448
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1671,6 +1686,7 @@ MonoBehaviour:
   playerTarget: {fileID: 693956453}
   smoothSpeed: 0.125
   offset: {x: 0, y: 0, z: -10}
+  globalZoomOut: 0
   minDistance: 3
   maxDistance: 15
   minOrthographicSize: 5
@@ -1679,6 +1695,18 @@ MonoBehaviour:
   followSinglePlayer: 0
   singlePlayerZoom: 6
   singlePlayerSmoothSpeed: 0.05
+  autoFindTargets: 1
+  playerTagHint: Player
+  playerNameContains: Iris
+  wheelchairTagHint: Player
+  wheelchairNameContains: Achille
+  ignoreBoundsInSingleMode: 1
+  manualFocus: 0
+  manualTarget: {fileID: 0}
+  manualSize: 19
+  useCameraBounds: 1
+  boundsMin: {x: -50, y: -50}
+  boundsMax: {x: 50, y: 50}
 --- !u!114 &1487544124
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8380,6 +8408,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneName: hub
+  nextSceneToUnlock: quete_croquettes
+  unlockTargetSceneToo: 1
   player: {fileID: 693956451}
   wheelchair: {fileID: 558353334}
   requireBothInside: 1

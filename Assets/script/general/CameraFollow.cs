@@ -26,6 +26,19 @@ public class CameraFollow : MonoBehaviour
     public float singlePlayerZoom = 6f; 
     public float singlePlayerSmoothSpeed = 0.05f; // Rendre le suivi solo très fluide
 
+    [Header("Auto assign targets")]
+    [Tooltip("Essaie de retrouver Iris/Achille si les références sont perdues (nouvelle scène, respawn, etc.).")]
+    public bool autoFindTargets = true;
+    public string playerTagHint = "Player";
+    public string playerNameContains = "Iris";
+    public string wheelchairTagHint = "Player";
+    public string wheelchairNameContains = "Achille";
+
+    [Header("Limits")]
+    [Tooltip("Ignore les limites quand on suit Iris seule (évite de " +
+             "bloquer la caméra si la zone de fin est hors bornes).")]
+    public bool ignoreBoundsInSingleMode = true;
+
     [Header("Focus manuel puzzle")]
     public bool manualFocus = false;
     public Transform manualTarget;
@@ -65,6 +78,11 @@ public class CameraFollow : MonoBehaviour
 
     void LateUpdate()
     {
+        if (autoFindTargets)
+        {
+            TryReacquireTargets(); // Evite de rester bloqué si la référence a été perdue
+        }
+
         bool hasWheelchair = wheelchairTarget != null;
         bool hasPlayer = playerTarget != null;
 
@@ -167,7 +185,15 @@ public class CameraFollow : MonoBehaviour
         transform.position = new Vector3(smoothedPosition.x, smoothedPosition.y, transform.position.z);
 
         // Appliquer les limites de caméra
-        if (useCameraBounds && cam != null)
+        bool shouldClamp = useCameraBounds && cam != null;
+
+        // Permet de sortir des bornes quand on suit uniquement Iris
+        if (ignoreBoundsInSingleMode && followSinglePlayer)
+        {
+            shouldClamp = false;
+        }
+
+        if (shouldClamp)
         {
             transform.position = ClampCameraPosition(transform.position);
         }
@@ -216,5 +242,78 @@ public class CameraFollow : MonoBehaviour
         );
 
         return new Vector3(clampedX, clampedY, cameraPos.z);
+    }
+
+    private void TryReacquireTargets()
+    {
+        if (playerTarget == null)
+        {
+            playerTarget = FindTarget(playerTagHint, playerNameContains);
+        }
+
+        if (wheelchairTarget == null)
+        {
+            wheelchairTarget = FindTarget(wheelchairTagHint, wheelchairNameContains);
+        }
+    }
+
+    private Transform FindTarget(string tagHint, string nameHint)
+    {
+        Transform found = null;
+
+        // Essai par tag (plus rapide) si le tag existe dans le projet
+        if (!string.IsNullOrEmpty(tagHint))
+        {
+            try
+            {
+                var candidatesByTag = GameObject.FindGameObjectsWithTag(tagHint);
+                found = FindByNameHint(candidatesByTag, nameHint);
+            }
+            catch (UnityException)
+            {
+                // Tag manquant : on passe à la recherche par nom
+            }
+        }
+
+        // Fallback : scan complet par nom
+        if (found == null)
+        {
+            var allTransforms = FindObjectsOfType<Transform>(true);
+            found = FindByNameHint(allTransforms, nameHint);
+        }
+
+        return found;
+    }
+
+    private Transform FindByNameHint(GameObject[] candidates, string nameHint)
+    {
+        if (candidates == null || candidates.Length == 0) return null;
+        if (string.IsNullOrEmpty(nameHint)) return candidates[0].transform;
+
+        foreach (var go in candidates)
+        {
+            if (go != null && go.name.Contains(nameHint))
+            {
+                return go.transform;
+            }
+        }
+
+        return candidates[0].transform;
+    }
+
+    private Transform FindByNameHint(Transform[] candidates, string nameHint)
+    {
+        if (candidates == null || candidates.Length == 0) return null;
+        if (string.IsNullOrEmpty(nameHint)) return candidates[0];
+
+        foreach (var tr in candidates)
+        {
+            if (tr != null && tr.name.Contains(nameHint))
+            {
+                return tr;
+            }
+        }
+
+        return candidates[0];
     }
 }
