@@ -9,6 +9,8 @@ public class CameraFollow : MonoBehaviour
     [Header("Camera Settings")]
     public float smoothSpeed = 0.125f;       // Vitesse de suivi standard
     public Vector3 offset = new Vector3(0, 0, -10); // Décalage caméra
+    [Tooltip("Ajuste la taille ortho globale pour reculer/zoomer la caméra (valeur positive = plus loin).")]
+    public float globalZoomOut = 0f;
 
     [Header("Distance Settings")]
     public float minDistance = 3f;
@@ -24,6 +26,11 @@ public class CameraFollow : MonoBehaviour
     public float singlePlayerZoom = 6f; 
     public float singlePlayerSmoothSpeed = 0.05f; // Rendre le suivi solo très fluide
 
+    [Header("Focus manuel puzzle")]
+    public bool manualFocus = false;
+    public Transform manualTarget;
+    public float manualSize = 19f;
+
     private Camera cam;
     private Transform currentTarget; // La cible que la caméra doit suivre (milieu ou Iris)
 
@@ -36,6 +43,13 @@ public class CameraFollow : MonoBehaviour
         }
         // La cible de base est Achille si présent, sinon Iris
         currentTarget = wheelchairTarget != null ? wheelchairTarget : playerTarget; 
+    }
+
+    public void SetManualFocus(Transform target, float size, bool enable)
+    {
+        manualFocus = enable;
+        manualTarget = target;
+        manualSize = size;
     }
 
     // Fonction publique pour être appelée par un Trigger Zone
@@ -51,6 +65,23 @@ public class CameraFollow : MonoBehaviour
 
         // Aucun cible valide
         if (!hasWheelchair && !hasPlayer) return;
+
+        if (manualFocus && manualTarget != null)
+        {
+            Vector3 manualDesiredPosition = manualTarget.position + offset;
+            Vector3 manualSmoothedPosition = Vector3.Lerp(transform.position, manualDesiredPosition, smoothSpeed);
+            transform.position = new Vector3(manualSmoothedPosition.x, manualSmoothedPosition.y, transform.position.z);
+
+            if (cam != null && cam.orthographic)
+            {
+                cam.orthographicSize = Mathf.Lerp(
+                    cam.orthographicSize,
+                    manualSize + globalZoomOut,
+                    zoomSmoothSpeed * Time.deltaTime
+                );
+            }
+            return;
+        }
 
         Vector3 desiredPosition;
         float desiredSize;
@@ -135,7 +166,7 @@ public class CameraFollow : MonoBehaviour
         {
             cam.orthographicSize = Mathf.Lerp(
                 cam.orthographicSize, 
-                desiredSize, 
+                desiredSize + globalZoomOut, 
                 zoomSmoothSpeed * Time.deltaTime
             );
         }
