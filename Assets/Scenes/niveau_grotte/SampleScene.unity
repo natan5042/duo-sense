@@ -1679,7 +1679,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9385f8a8cb90bfe4d84d95d7d27a750c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneName: niveau2
+  sceneName: hub
+  nextSceneToUnlock: niveau2
+  unlockTargetSceneToo: 1
   player: {fileID: 359259516}
   wheelchair: {fileID: 1155523104}
   requireBothInside: 1
@@ -2434,6 +2436,7 @@ MonoBehaviour:
   attachYOffset: 0.5
   pushExtraBack: 0.35
   matchWheelchairColliderToPlayer: 1
+  allowFreeVerticalWhenNoGravity: 1
   debugJump: 0
   controlSpriteManually: 0
   spriteRenderer: {fileID: 0}
@@ -2868,6 +2871,7 @@ MonoBehaviour:
   playerTarget: {fileID: 359259513}
   smoothSpeed: 0.125
   offset: {x: 0, y: 0, z: -10}
+  globalZoomOut: 0
   minDistance: 3
   maxDistance: 15
   minOrthographicSize: 5
@@ -2876,6 +2880,9 @@ MonoBehaviour:
   followSinglePlayer: 0
   singlePlayerZoom: 6
   singlePlayerSmoothSpeed: 0.05
+  manualFocus: 0
+  manualTarget: {fileID: 0}
+  manualSize: 19
 --- !u!1 &559267093
 GameObject:
   m_ObjectHideFlags: 0
