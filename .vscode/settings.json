@@ -67,5 +67,5 @@
         "*.sln": "*.csproj",
         "*.slnx": "*.csproj"
     },
-    "dotnet.defaultSolution": "Projet_PTUT-aggregate.slnx"
+    "dotnet.defaultSolution": "Projet_PTUT - Copie.slnx"
 }
