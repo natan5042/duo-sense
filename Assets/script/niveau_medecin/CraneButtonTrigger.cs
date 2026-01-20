@@ -1,9 +1,8 @@
 using UnityEngine;
 
-/// <summary>
+/// sent
 /// Bouton physique : quand le joueur appuie sur la touche (par défaut S) en restant dans le trigger du bouton,
 /// on appelle l'action correspondante sur la grue.
-/// </summary>
 [RequireComponent(typeof(Collider2D))]
 public class CraneButtonTrigger : MonoBehaviour
 {

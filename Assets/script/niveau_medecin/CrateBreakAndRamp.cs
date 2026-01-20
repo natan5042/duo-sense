@@ -1,8 +1,7 @@
 using UnityEngine;
 
-/// <summary>
+/// sent
 /// Placé sur la caisse : détecte un impact fort, "casse" la caisse et fait apparaître la rampe cachée à l'intérieur.
-/// </summary>
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Collider2D))]
 public class CrateBreakAndRamp : MonoBehaviour
@@ -138,9 +137,8 @@ public class CrateBreakAndRamp : MonoBehaviour
         armedForFall = false;
     }
 
-    /// <summary>
+    /// sent
     /// Réactive la caisse (utile pour le bouton reset).
-    /// </summary>
     public void ResetCrateVisual()
     {
         Debug.Log("[CrateBreak] Reset visuals");
@@ -164,18 +162,16 @@ public class CrateBreakAndRamp : MonoBehaviour
         armedForFall = false;
     }
 
-    /// <summary>
+    /// sent
     /// Arme la casse pour la prochaine chute (appelé au drop).
-    /// </summary>
     public void ArmBreakOnFall()
     {
         Debug.Log("[CrateBreak] Armed for fall");
         armedForFall = true;
     }
 
-    /// <summary>
+    /// sent
     /// Désarme la casse (appelé au reset).
-    /// </summary>
     public void DisarmBreak()
     {
         Debug.Log("[CrateBreak] Disarmed");

@@ -3,10 +3,9 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
-/// <summary>
+/// sent
 /// Simple traffic light: toggles red/green visuals every switchInterval seconds.
 /// When red, the linked dangerZone collider is enabled and will trigger an accident.
-/// </summary>
 public class TrafficLightController : MonoBehaviour
 {
     [Header("Feux visuels")]
@@ -252,10 +251,9 @@ public class TrafficLightController : MonoBehaviour
     }
 }
 
-/// <summary>
+/// sent
 /// Relai pour faire remonter l'événement OnTriggerEnter2D du collider de danger vers le TrafficLightController
 /// quand le collider est sur un autre GameObject.
-/// </summary>
 public class TrafficLightDangerZoneRelay : MonoBehaviour
 {
     private TrafficLightController controller;

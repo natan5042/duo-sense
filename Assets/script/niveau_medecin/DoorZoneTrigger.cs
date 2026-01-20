@@ -3,9 +3,8 @@ using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
 
-/// <summary>
+/// sent
 /// Gère la zone de la porte : son d'ouverture, animation, disparition du perso et changement de scène
-/// </summary>
 [RequireComponent(typeof(Collider2D))]
 public class DoorZoneTrigger : MonoBehaviour
 {

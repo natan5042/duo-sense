@@ -2,13 +2,12 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
+/// sent
 /// Gère les trois boutons du mini-puzzle de la grue :
 /// - Bouton 1 : monter la caisse si elle est dans la zone de prise (collider 2D trigger porté par ce GameObject).
 /// - Bouton 2 : lâcher la caisse uniquement quand elle est arrivée en haut.
 /// - Bouton 3 : réinitialiser la caisse après casse/essai.
 /// Le script doit être posé sur la zone de prise (collider2D isTrigger) située en bas de la grue.
-/// </summary>
 [RequireComponent(typeof(Collider2D))]
 public class CraneHoistController : MonoBehaviour
 {

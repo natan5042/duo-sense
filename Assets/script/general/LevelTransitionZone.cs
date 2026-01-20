@@ -1,45 +1,55 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-/// <summary>
+
 /// Détecte quand le joueur et/ou le fauteuil roulant entrent dans une zone trigger
 /// pour charger une nouvelle scène et débloquer des niveaux.
 /// Nécessite un BoxCollider2D en mode Trigger.
-/// </summary>
 [RequireComponent(typeof(BoxCollider2D))]
 public class LevelTransitionZone : MonoBehaviour
 {
-    /// <summary>Scène à charger quand la condition est remplie.</summary>
+    /// sent
+    /// Scène à charger quand la condition est remplie.
     [SerializeField] private string sceneName = "niveau2";
     
-    /// <summary>Scène à débloquer en progression.</summary>
+    /// sent
+    /// Scène à débloquer en progression.
     [SerializeField] private string nextSceneToUnlock = "niveau2";
     
-    /// <summary>Débloque aussi la scène de destination (sceneName).</summary>
+    /// sent
+    /// Débloque aussi la scène de destination (sceneName).
     [SerializeField] private bool unlockTargetSceneToo = true;
     
-    /// <summary>Référence au composant de mouvement du joueur.</summary>
+    /// sent
+    /// Référence au composant de mouvement du joueur.
     [SerializeField] private PlayerMovement player;
     
-    /// <summary>Référence au composant de mouvement du fauteuil.</summary>
+    /// sent
+    /// Référence au composant de mouvement du fauteuil.
     [SerializeField] private WheelchairMovement wheelchair;
     
-    /// <summary>Si true, les DEUX personnages doivent être présents. Si false, UN seul suffit.</summary>
+    /// sent
+    /// Si true, les DEUX personnages doivent être présents. Si false, UN seul suffit.
     [SerializeField] private bool requireBothInside = true;
     
-    /// <summary>Active les messages de debug.</summary>
+    /// sent
+    /// Active les messages de debug.
     [SerializeField] private bool logEvents = true;
 
-    /// <summary>Indique si le joueur est dans la zone.</summary>
+    /// sent
+    /// Indique si le joueur est dans la zone.
     private bool playerInside;
     
-    /// <summary>Indique si le fauteuil est dans la zone.</summary>
+    /// sent
+    /// Indique si le fauteuil est dans la zone.
     private bool wheelchairInside;
     
-    /// <summary>Empêche les chargements multiples simultanés.</summary>
+    /// sent
+    /// Empêche les chargements multiples simultanés.
     private bool loading;
 
-    /// <summary>Appelé au reset: force le collider en mode Trigger.</summary>
+    /// sent
+    /// Appelé au reset: force le collider en mode Trigger.
     private void Reset()
     {
         var col = GetComponent<Collider2D>();
@@ -49,7 +59,8 @@ public class LevelTransitionZone : MonoBehaviour
         }
     }
 
-    /// <summary>Appelé à la validation de l'inspecteur: maintient le collider en Trigger.</summary>
+    /// sent
+    /// Appelé à la validation de l'inspecteur: maintient le collider en Trigger.
     private void OnValidate()
     {
         var col = GetComponent<Collider2D>();
@@ -59,21 +70,22 @@ public class LevelTransitionZone : MonoBehaviour
         }
     }
 
-    /// <summary>Détecte l'entrée dans la zone trigger.</summary>
+    /// sent
+    /// Détecte l'entrée dans la zone trigger.
     private void OnTriggerEnter2D(Collider2D other)
     {
         UpdatePresence(other, true);
     }
 
-    /// <summary>Détecte la sortie de la zone trigger.</summary>
+    /// sent
+    /// Détecte la sortie de la zone trigger.
     private void OnTriggerExit2D(Collider2D other)
     {
         UpdatePresence(other, false);
     }
 
-    /// <summary>
+    /// sent
     /// Met à jour la présence du joueur/fauteuil et vérifie si la condition de transition est remplie.
-    /// </summary>
     private void UpdatePresence(Collider2D other, bool isInside)
     {
         // Vérifie si c'est le joueur
@@ -116,9 +128,8 @@ public class LevelTransitionZone : MonoBehaviour
         }
     }
 
-    /// <summary>
+    /// sent
     /// Charge la scène cible et déverrouille les niveaux en progression.
-    /// </summary>
     private void LoadTargetScene()
     {
         // Empêche les chargements multiples
