@@ -228,6 +228,16 @@ public class SubtitleUI : MonoBehaviour
         t.alignment = TextAnchor.LowerCenter;
         t.horizontalOverflow = HorizontalWrapMode.Wrap;
         t.verticalOverflow = VerticalWrapMode.Truncate;
+
+        // Force rect transform to be centered at bottom so dialogues appear centered
+        var rt = t.GetComponent<RectTransform>();
+        if (rt != null)
+        {
+            rt.anchorMin = new Vector2(0.5f, forceCenter ? 0f : anchorY);
+            rt.anchorMax = new Vector2(0.5f, forceCenter ? 0f : anchorY);
+            rt.pivot = new Vector2(0.5f, forceCenter ? 0f : anchorY);
+            rt.anchoredPosition = new Vector2(offsetX, offsetY);
+        }
     }
 
     void ConfigureTMP(TextMeshProUGUI tmp)
@@ -237,6 +247,20 @@ public class SubtitleUI : MonoBehaviour
         tmp.enableWordWrapping = true;
         tmp.overflowMode = TextOverflowModes.Overflow;
         tmp.maxVisibleLines = int.MaxValue;
+
+        // Force rect transform to be centered at bottom so dialogues appear centered
+        var rt = tmp.GetComponent<RectTransform>();
+        if (rt != null)
+        {
+            rt.anchorMin = new Vector2(0.5f, forceCenter ? 0f : anchorY);
+            rt.anchorMax = new Vector2(0.5f, forceCenter ? 0f : anchorY);
+            rt.pivot = new Vector2(0.5f, forceCenter ? 0f : anchorY);
+            rt.anchoredPosition = new Vector2(offsetX, offsetY);
+            if (!stretchWidth)
+            {
+                rt.sizeDelta = new Vector2(Mathf.Min(rt.sizeDelta.x, Screen.width * viewportWidthFactor), rt.sizeDelta.y);
+            }
+        }
     }
 
     void ApplyLayout(RectTransform rt, float height, float preferredWidth, float maxWidth)

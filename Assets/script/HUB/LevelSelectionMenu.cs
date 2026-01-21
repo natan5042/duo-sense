@@ -1,6 +1,8 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using TMPro;
 
 // Gère le menu de sélection des niveaux
 public class LevelSelectionMenu : MonoBehaviour
@@ -21,11 +23,33 @@ public class LevelSelectionMenu : MonoBehaviour
     [SerializeField] private string defaultFirstScene = "Level1"; // Scène qui doit être déverrouillée au départ
     [SerializeField] private bool logDebug = true;
     [SerializeField] private bool alwaysAllowFirstButton = true; // Secours: le premier bouton reste cliquable quoi qu'il arrive
+
+    [Header("Intro niveau 1 (dialogue avant chargement)")]
+    [SerializeField] private string introSceneName = ""; // Nom exact de la scène niveau1
+    [SerializeField] private AudioClip introDialogueClip; // Assigne DIALOGUE1
+    [TextArea]
+    [SerializeField] private string introSubtitle; // Texte du sous-titre
+    [SerializeField] private float introSubtitleHoldExtra = 0.25f; // Temps en plus après l'audio
+    [SerializeField] private bool introPlayOncePerSession = true; // Evite de rejouer si déjà lancé
+    [SerializeField] private GameObject introBlackScreen; // Image pleine écran noire (Canvas overlay)
+    [SerializeField] private bool introBlackFade = true; // Si true, on fade
+    [SerializeField] private float introBlackFadeDuration = 0.3f;
+    [SerializeField] private bool introForceSubtitleOnTop = true; // Met les sous-titres au-dessus du noir
+    [SerializeField] private int introBlackScreenSortingOrder = 1000; // Ordre du canvas du noir
+    [SerializeField] private int introSubtitleSortingOrder = 5000;   // Ordre du canvas des sous-titres
     
     private LevelDisplayInteraction displayInteraction;
 
     // Mémo de l'index pour savoir quel bouton est cliqué
     private int[] buttonIndices;
+
+    // Etat local
+    private bool introAlreadyPlayed;
+    private bool loadingRoutine;
+    // Temp subtitle object on the black screen (created at runtime)
+    private GameObject introTempSubtitleGO;
+    private TextMeshProUGUI introTempSubtitleTMP;
+    private CanvasGroup introTempSubtitleCanvasGroup;
 
     void Start()
     {
@@ -103,6 +127,12 @@ public class LevelSelectionMenu : MonoBehaviour
 
     private void LoadLevel(string sceneName, int index)
     {
+        if (loadingRoutine)
+        {
+            if (logDebug) Debug.LogWarning("[LevelSelectionMenu] Chargement déjà en cours, clic ignoré.");
+            return;
+        }
+
         // Pas de nom => on autorise pour éviter de bloquer un bouton mal configuré
         if (string.IsNullOrEmpty(sceneName))
         {
@@ -122,6 +152,17 @@ public class LevelSelectionMenu : MonoBehaviour
                 if (logDebug) Debug.LogWarning($"[LevelSelectionMenu] Attempt to load locked scene '{sceneName}'.");
                 return;
             }
+        }
+
+        // Si c'est le niveau1 et que l'intro n'a pas encore été jouée
+        if (!string.IsNullOrEmpty(introSceneName)
+            && string.Equals(sceneName, introSceneName)
+            && introDialogueClip != null
+            && (!introPlayOncePerSession || !introAlreadyPlayed))
+        {
+            if (logDebug) Debug.Log($"[LevelSelectionMenu] Playing intro dialogue before loading '{sceneName}'.");
+            StartCoroutine(PlayIntroThenLoad(sceneName));
+            return;
         }
 
         if (logDebug) Debug.Log($"[LevelSelectionMenu] Loading scene '{sceneName}'.");
@@ -205,5 +246,235 @@ public class LevelSelectionMenu : MonoBehaviour
         }
 
         return string.Empty;
+    }
+
+    private IEnumerator PlayIntroThenLoad(string sceneName)
+    {
+        loadingRoutine = true;
+
+        // On veut que l'audio tourne même si le jeu était en pause
+        Time.timeScale = 1f;
+
+        // Ecran noir
+        if (introBlackScreen != null)
+        {
+            ConfigureBlackScreenCanvas();
+            if (introBlackFade)
+                yield return StartCoroutine(FadeBlackScreen(true));
+            else
+                SetBlackScreen(true);
+        }
+
+        // Prépare une source 2D pour le dialogue
+        var src = GetComponent<AudioSource>();
+        if (src == null)
+        {
+            src = gameObject.AddComponent<AudioSource>();
+        }
+        src.playOnAwake = false;
+        src.spatialBlend = 0f;
+
+        float duration = Mathf.Max(introDialogueClip != null ? introDialogueClip.length : 0f, 0f) + Mathf.Max(introSubtitleHoldExtra, 0f);
+
+        // Affiche les sous-titres si possible — si un écran noir existe, on affiche un texte dessus
+        if (!string.IsNullOrWhiteSpace(introSubtitle))
+        {
+            if (introBlackScreen != null)
+            {
+                CreateOrReuseTempSubtitleOnBlack();
+                StartCoroutine(ShowTempSubtitleRoutine(introSubtitle, duration));
+            }
+            else
+            {
+                var ui = SubtitleUI.GetOrFindInstance();
+                if (ui != null)
+                {
+                    if (introForceSubtitleOnTop)
+                    {
+                        BringSubtitleOnTop(ui);
+                    }
+                    if (logDebug)
+                    {
+                        var uiCanvas = ui.GetComponentInParent<Canvas>();
+                        var cg = ui.canvasGroup;
+                        Debug.Log($"[LevelSelectionMenu] Intro subtitle: ui found, canvas order={(uiCanvas!=null?uiCanvas.sortingOrder:-1)}, override={(uiCanvas!=null && uiCanvas.overrideSorting)}, alpha={(cg!=null?cg.alpha:-1f)}");
+                    }
+                    ui.ShowSubtitle(introSubtitle, duration);
+                }
+                else if (logDebug)
+                {
+                    Debug.LogWarning("[LevelSelectionMenu] Pas de SubtitleUI trouvé pour l'intro.");
+                }
+            }
+        }
+
+        if (introDialogueClip != null)
+        {
+            src.PlayOneShot(introDialogueClip);
+        }
+
+        // On attend en temps réel pour ne pas dépendre du timeScale
+        yield return new WaitForSecondsRealtime(Mathf.Max(duration, 0.25f));
+
+        if (introPlayOncePerSession)
+        {
+            introAlreadyPlayed = true;
+        }
+
+        if (introBlackScreen != null)
+        {
+            if (introBlackFade)
+                yield return StartCoroutine(FadeBlackScreen(false));
+            else
+                SetBlackScreen(false);
+        }
+
+        SceneManager.LoadScene(sceneName);
+    }
+
+    private void BringSubtitleOnTop(SubtitleUI ui)
+    {
+        if (ui == null) return;
+        var tr = ui.transform;
+        if (tr != null && tr.parent != null)
+        {
+            tr.SetAsLastSibling();
+        }
+
+        var canvas = ui.GetComponentInParent<Canvas>();
+        if (canvas != null)
+        {
+            // Force un ordre haut pour passer devant l'image noire si elle est dans le même Canvas
+            canvas.overrideSorting = true;
+            canvas.sortingOrder = Mathf.Max(canvas.sortingOrder, introSubtitleSortingOrder);
+        }
+        if (logDebug)
+        {
+            Debug.Log($"[LevelSelectionMenu] SubtitleUI bring on top: order={ui.GetComponentInParent<Canvas>()?.sortingOrder}");
+        }
+    }
+
+    private void ConfigureBlackScreenCanvas()
+    {
+        if (introBlackScreen == null) return;
+        var canvas = introBlackScreen.GetComponentInParent<Canvas>();
+        if (canvas != null)
+        {
+            canvas.overrideSorting = true;
+            canvas.sortingOrder = introBlackScreenSortingOrder;
+            if (logDebug)
+            {
+                Debug.Log($"[LevelSelectionMenu] Black screen canvas order set to {canvas.sortingOrder}");
+            }
+        }
+    }
+
+    // Create a temporary TextMeshProUGUI child on the black screen to show subtitles above the black image
+    private void CreateOrReuseTempSubtitleOnBlack()
+    {
+        if (introBlackScreen == null) return;
+        if (introTempSubtitleGO != null) return;
+
+        var existing = introBlackScreen.transform.Find("IntroTempSubtitle");
+        if (existing != null)
+        {
+            introTempSubtitleGO = existing.gameObject;
+            introTempSubtitleTMP = introTempSubtitleGO.GetComponentInChildren<TextMeshProUGUI>();
+            introTempSubtitleCanvasGroup = introTempSubtitleGO.GetComponent<CanvasGroup>();
+            return;
+        }
+
+        introTempSubtitleGO = new GameObject("IntroTempSubtitle");
+        introTempSubtitleGO.transform.SetParent(introBlackScreen.transform, false);
+
+        introTempSubtitleCanvasGroup = introTempSubtitleGO.AddComponent<CanvasGroup>();
+        introTempSubtitleCanvasGroup.alpha = 0f;
+
+        introTempSubtitleGO.transform.SetAsLastSibling();
+
+        var rect = introTempSubtitleGO.AddComponent<RectTransform>();
+        rect.anchorMin = new Vector2(0.5f, 0f);
+        rect.anchorMax = new Vector2(0.5f, 0f);
+        rect.pivot = new Vector2(0.5f, 0f);
+        rect.anchoredPosition = new Vector2(0f, 60f);
+        rect.sizeDelta = new Vector2(800f, 200f);
+
+        introTempSubtitleTMP = introTempSubtitleGO.AddComponent<TextMeshProUGUI>();
+        introTempSubtitleTMP.alignment = TextAlignmentOptions.BottomGeoAligned;
+        introTempSubtitleTMP.enableWordWrapping = true;
+        introTempSubtitleTMP.fontSize = 36;
+        introTempSubtitleTMP.color = Color.white;
+        introTempSubtitleTMP.raycastTarget = false;
+    }
+
+    private IEnumerator ShowTempSubtitleRoutine(string text, float duration)
+    {
+        if (introTempSubtitleGO == null || introTempSubtitleTMP == null || introTempSubtitleCanvasGroup == null)
+            yield break;
+
+        introTempSubtitleTMP.text = text;
+
+        float fade = Mathf.Min(0.15f, introBlackFadeDuration);
+        float t = 0f;
+        while (t < fade)
+        {
+            t += Time.unscaledDeltaTime;
+            introTempSubtitleCanvasGroup.alpha = Mathf.Lerp(0f, 1f, t / fade);
+            yield return null;
+        }
+        introTempSubtitleCanvasGroup.alpha = 1f;
+
+        yield return new WaitForSecondsRealtime(duration);
+
+        t = 0f;
+        while (t < fade)
+        {
+            t += Time.unscaledDeltaTime;
+            introTempSubtitleCanvasGroup.alpha = Mathf.Lerp(1f, 0f, t / fade);
+            yield return null;
+        }
+        introTempSubtitleCanvasGroup.alpha = 0f;
+    }
+
+    private void SetBlackScreen(bool visible)
+    {
+        introBlackScreen.SetActive(visible);
+        var cg = introBlackScreen.GetComponent<CanvasGroup>();
+        if (cg != null)
+        {
+            cg.alpha = visible ? 1f : 0f;
+        }
+    }
+
+    private IEnumerator FadeBlackScreen(bool visible)
+    {
+        if (introBlackScreen == null)
+            yield break;
+
+        var cg = introBlackScreen.GetComponent<CanvasGroup>();
+        if (cg == null)
+        {
+            introBlackScreen.SetActive(visible);
+            yield break;
+        }
+
+        introBlackScreen.SetActive(true);
+
+        float start = cg.alpha;
+        float end = visible ? 1f : 0f;
+        float duration = Mathf.Max(introBlackFadeDuration, 0.01f);
+        float t = 0f;
+        while (t < duration)
+        {
+            t += Time.unscaledDeltaTime;
+            cg.alpha = Mathf.Lerp(start, end, t / duration);
+            yield return null;
+        }
+        cg.alpha = end;
+
+        if (!visible)
+        {
+            introBlackScreen.SetActive(false);
+        }
     }
 }
