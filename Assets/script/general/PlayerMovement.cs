@@ -28,9 +28,6 @@ public class PlayerMovement : MonoBehaviour
     [Header("Collider sync")]
     public bool matchWheelchairColliderToPlayer = true; // Aligner temporairement les colliders
 
-    [Header("Zero-Gravity mode")]
-    public bool allowFreeVerticalWhenNoGravity = true; // Z/S actifs seulement si gravityScale = 0
-
     private Rigidbody2D rb;
     private Vector2 movement;
     private bool isGrounded;
@@ -63,6 +60,50 @@ public class PlayerMovement : MonoBehaviour
     private int moveFrameIndex = 0;
     private float moveFrameTimer = 0f;
 
+	[Header("Ladder")]
+    public float climbSpeed = 4f;
+    public LayerMask ladderLayer;
+
+    private bool isInLadderZone = false;
+    private bool isClimbing = false;
+    private float defaultGravity;
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Ladder"))
+        {
+            isInLadderZone = true;
+        }
+    }
+
+    void OnTriggerExit2D(Collider2D other)
+    {
+        if (((1 << other.gameObject.layer) & ladderLayer) != 0)
+        {
+            isInLadderZone = false;
+            StopClimbing();
+        }
+    }
+
+    void StartClimbing()
+    {
+        if (isClimbing) return;
+
+        isClimbing = true;
+        rb.gravityScale = 0f;
+        rb.linearVelocity = Vector2.zero;
+    }
+
+    void StopClimbing()
+    {
+        if (!isClimbing) return;
+
+        isClimbing = false;
+        rb.gravityScale = defaultGravity;
+    }
+
+
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -87,16 +128,21 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        // Déplacement horizontal/vertical - ZQSD (AZERTY) pour top-down
+			  // Лестница: включается ТОЛЬКО при нажатии W
+        if (isInLadderZone && Input.GetKey(KeyCode.W))
+        {
+            StartClimbing();
+        }
+        else if (isClimbing && !Input.GetKey(KeyCode.W))
+        {
+            StopClimbing();
+        }
+		
+		
+        // Déplacement horizontal - avec ZQSD (clavier AZERTY)
         float inputX = 0f;
         if (Input.GetKey(KeyCode.A)) inputX = -1f;  // Q sur clavier AZERTY
         if (Input.GetKey(KeyCode.D)) inputX = 1f;   // D sur clavier AZERTY
-
-        float inputY = 0f;
-        if (Input.GetKey(KeyCode.Z) || Input.GetKey(KeyCode.W)) inputY = 1f;   // Haut (Z sur AZERTY, W sur QWERTY)
-        if (Input.GetKey(KeyCode.S)) inputY = -1f;   // Bas
-
-        bool zeroGravity = Mathf.Abs(rb.gravityScale) < 0.001f;
 
         if (Mathf.Abs(inputX) > 0.01f)
         {
@@ -106,11 +152,10 @@ public class PlayerMovement : MonoBehaviour
         if (!isPushing)
         {
             movement.x = inputX;
-            movement.y = (zeroGravity && allowFreeVerticalWhenNoGravity) ? inputY : 0f;
         }
         else
         {
-            movement = Vector2.zero; // Iris ne se déplace pas seule lorsqu'elle pousse
+            movement.x = 0f; // Iris ne se déplace pas seule lorsqu'elle pousse
         }
 
         // Vérifier si le joueur touche le sol
@@ -193,9 +238,8 @@ public class PlayerMovement : MonoBehaviour
         {
             if (animator != null)
             {
-                float moveMagnitude = zeroGravity ? movement.magnitude : Mathf.Abs(movement.x);
-                animator.SetFloat("Speed", moveMagnitude);
-                animator.SetBool("IsMoving", moveMagnitude > 0.01f);
+                animator.SetFloat("Speed", Mathf.Abs(movement.x));
+                animator.SetBool("IsMoving", Mathf.Abs(movement.x) > 0.01f);
                 animator.SetBool("IsGrounded", isGrounded);
             }
         }
@@ -268,6 +312,19 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
+		
+		if (isClimbing)
+            {
+                rb.linearVelocity = new Vector2(
+                    rb.linearVelocity.x,
+                    movement.y * climbSpeed
+                );
+                return;
+            }
+
+        if (rb == null) return;
+		
+		
         if (isPushing)
         {
             // Iris est “collée” : pas de déplacement propre
@@ -277,23 +334,8 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
-            bool zeroGravity = Mathf.Abs(rb.gravityScale) < 0.001f;
-            if (zeroGravity && allowFreeVerticalWhenNoGravity)
-            {
-                // Déplacement libre 2D (gravité supprimée)
-                Vector2 desired = movement;
-                if (desired.sqrMagnitude > 1f)
-                {
-                    desired = desired.normalized; // Vitesse uniforme en diagonale
-                }
-
-                rb.linearVelocity = desired * moveSpeed;
-            }
-            else
-            {
-                // Mode plateforme classique (gravité active)
-                rb.linearVelocity = new Vector2(movement.x * moveSpeed, rb.linearVelocity.y);
-            }
+            // Déplacement horizontal
+            rb.linearVelocity = new Vector2(movement.x * moveSpeed, rb.linearVelocity.y);
         }
     }
 
