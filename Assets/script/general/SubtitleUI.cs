@@ -40,6 +40,7 @@ public class SubtitleUI : MonoBehaviour
     Coroutine scrollRoutine;
     RectTransform currentTextRT;
     Vector2 baseAnchoredPos;
+    bool missingTMPLogged;
 
     public static SubtitleUI GetOrFindInstance()
     {
@@ -69,6 +70,7 @@ public class SubtitleUI : MonoBehaviour
         }
 
         AutoAssignIfNeeded();
+        HandleTMPReadiness();
         ConfigureTargets();
 
         if (canvasGroup != null)
@@ -130,17 +132,22 @@ public class SubtitleUI : MonoBehaviour
     bool HasTextTarget()
     {
         bool ok = subtitleText != null || subtitleTMP != null;
-        if (!ok && debugLogs)
+        if (!ok && !missingTMPLogged)
         {
-            Debug.LogWarning("SubtitleUI : aucun Text ni TMP assigné ou trouvé.");
+            Debug.LogError("SubtitleUI : aucune cible texte assignée. Assignez un TextMeshProUGUI ou un Text.");
+            missingTMPLogged = true;
         }
         return ok;
     }
 
     void SetText(string text)
     {
+        if (subtitleTMP != null)
+        {
+            subtitleTMP.text = text;
+            return;
+        }
         if (subtitleText != null) subtitleText.text = text;
-        if (subtitleTMP != null) subtitleTMP.text = text;
     }
 
     void SetVisible(bool visible)
@@ -203,6 +210,18 @@ public class SubtitleUI : MonoBehaviour
         }
     }
 
+    void HandleTMPReadiness()
+    {
+        if (subtitleTMP == null) return;
+
+        if (TMP_Settings.instance == null)
+        {
+            Debug.LogError("TextMesh Pro Essential Resources manquantes. Menu : Window > TextMeshPro > Import TMP Essential Resources. Le script bascule sur l'UI Text si disponible.");
+            subtitleTMP.enabled = false;
+            subtitleTMP = null; // bascule sur Text si présent
+        }
+    }
+
     void ConfigureText(Text t)
     {
         if (t == null) return;
@@ -215,9 +234,9 @@ public class SubtitleUI : MonoBehaviour
     {
         if (tmp == null) return;
         tmp.alignment = TextAlignmentOptions.BottomGeoAligned;
-        tmp.textWrappingMode = TextWrappingModes.Normal; // remplace enableWordWrapping (obsolète)
+        tmp.enableWordWrapping = true;
         tmp.overflowMode = TextOverflowModes.Overflow;
-        tmp.maxVisibleLines = int.MaxValue; // on laisse tout s'afficher et on masque/scroll
+        tmp.maxVisibleLines = int.MaxValue;
     }
 
     void ApplyLayout(RectTransform rt, float height, float preferredWidth, float maxWidth)
