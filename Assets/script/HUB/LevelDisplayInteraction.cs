@@ -11,6 +11,8 @@ public class LevelDisplayInteraction : MonoBehaviour, IInteractable
     [Header("Feedback")]
     public AudioSource audioSource;
     public AudioClip interactClip;
+    [Range(0f, 1f)] public float interactVolume = 1f;
+    public bool useAudioSource = true;
 
     private Transform currentPlayer;
     private bool isPlayerNear = false;
@@ -26,9 +28,17 @@ public class LevelDisplayInteraction : MonoBehaviour, IInteractable
             }
         }
 
-        if (audioSource == null)
+        if (useAudioSource)
         {
-            audioSource = GetComponent<AudioSource>();
+            if (audioSource == null)
+            {
+                audioSource = GetComponent<AudioSource>();
+                if (audioSource == null)
+                {
+                    audioSource = gameObject.AddComponent<AudioSource>();
+                }
+            }
+            audioSource.playOnAwake = false;
         }
 
         if (menuCanvas != null)
@@ -76,10 +86,7 @@ public class LevelDisplayInteraction : MonoBehaviour, IInteractable
     public void OpenMenu()
     {
         // Jouer le son d'interaction
-        if (audioSource != null && interactClip != null)
-        {
-            audioSource.PlayOneShot(interactClip);
-        }
+        PlayActionSound();
 
         // Ouvrir le menu des niveaux
         if (menuCanvas != null)
@@ -103,5 +110,28 @@ public class LevelDisplayInteraction : MonoBehaviour, IInteractable
     public void Interact(ItemPickup actor)
     {
         OpenMenu();
+    }
+
+    // Méthode publique pour jouer le son (utilisable depuis UI events)
+    public void PlayActionSound()
+    {
+        if (interactClip == null)
+        {
+            Debug.LogWarning("LevelDisplayInteraction: Aucun clip d'interaction assigné.", this);
+            return;
+        }
+
+        if (useAudioSource && audioSource != null)
+        {
+            audioSource.volume = interactVolume;
+            audioSource.PlayOneShot(interactClip);
+            Debug.Log("LevelDisplayInteraction: Son joué via AudioSource.", this);
+        }
+        else
+        {
+            Vector3 pos = Camera.main != null ? Camera.main.transform.position : transform.position;
+            AudioSource.PlayClipAtPoint(interactClip, pos, interactVolume);
+            Debug.Log("LevelDisplayInteraction: Son joué via PlayClipAtPoint.", this);
+        }
     }
 }

@@ -12,6 +12,10 @@ public class PickableItem : MonoBehaviour
     public bool noCollisionEvenWhenDropped = false;   // si vrai, l'objet est toujours en Trigger
     public bool moveToIgnoreRaycastLayerWhenHeld = true; // passe en couche Ignore Raycast pendant le port
 
+    [Header("Audio Settings")]
+    [Tooltip("Son à jouer lors du ramassage (optionnel).")]
+    public AudioClip pickupSound;
+
     [Tooltip("Point d'attache local (si vide, centre du Transform).")]
     public Transform attachPoint;
 
@@ -53,6 +57,12 @@ public class PickableItem : MonoBehaviour
     // attachToHolder=false permet de simplement marquer l'objet comme ramassé sans l'accrocher (inventaire)
     public void OnPicked(Transform holder, bool attachToHolder = true)
     {
+        // Jouer le son de ramassage si défini
+        if (pickupSound != null)
+        {
+            AudioSource.PlayClipAtPoint(pickupSound, transform.position);
+        }
+
         if (disableColliderOnPickup)
         {
             // Garder détectable mais sans collisions physiques
