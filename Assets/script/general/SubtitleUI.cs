@@ -215,7 +215,7 @@ public class SubtitleUI : MonoBehaviour
     {
         if (tmp == null) return;
         tmp.alignment = TextAlignmentOptions.BottomGeoAligned;
-        tmp.enableWordWrapping = true;
+        tmp.textWrappingMode = TextWrappingModes.Normal; // remplace enableWordWrapping (obsolète)
         tmp.overflowMode = TextOverflowModes.Overflow;
         tmp.maxVisibleLines = int.MaxValue; // on laisse tout s'afficher et on masque/scroll
     }

@@ -8,47 +8,36 @@ using UnityEngine.SceneManagement;
 [RequireComponent(typeof(BoxCollider2D))]
 public class LevelTransitionZone : MonoBehaviour
 {
-    /// sent
     /// Scène à charger quand la condition est remplie.
     [SerializeField] private string sceneName = "niveau2";
     
-    /// sent
     /// Scène à débloquer en progression.
     [SerializeField] private string nextSceneToUnlock = "niveau2";
     
-    /// sent
     /// Débloque aussi la scène de destination (sceneName).
     [SerializeField] private bool unlockTargetSceneToo = true;
     
-    /// sent
     /// Référence au composant de mouvement du joueur.
     [SerializeField] private PlayerMovement player;
     
-    /// sent
     /// Référence au composant de mouvement du fauteuil.
     [SerializeField] private WheelchairMovement wheelchair;
     
-    /// sent
     /// Si true, les DEUX personnages doivent être présents. Si false, UN seul suffit.
     [SerializeField] private bool requireBothInside = true;
     
-    /// sent
     /// Active les messages de debug.
     [SerializeField] private bool logEvents = true;
 
-    /// sent
     /// Indique si le joueur est dans la zone.
     private bool playerInside;
     
-    /// sent
     /// Indique si le fauteuil est dans la zone.
     private bool wheelchairInside;
     
-    /// sent
     /// Empêche les chargements multiples simultanés.
     private bool loading;
 
-    /// sent
     /// Appelé au reset: force le collider en mode Trigger.
     private void Reset()
     {
@@ -59,7 +48,7 @@ public class LevelTransitionZone : MonoBehaviour
         }
     }
 
-    /// sent
+
     /// Appelé à la validation de l'inspecteur: maintient le collider en Trigger.
     private void OnValidate()
     {
@@ -70,21 +59,20 @@ public class LevelTransitionZone : MonoBehaviour
         }
     }
 
-    /// sent
+
     /// Détecte l'entrée dans la zone trigger.
     private void OnTriggerEnter2D(Collider2D other)
     {
         UpdatePresence(other, true);
     }
 
-    /// sent
     /// Détecte la sortie de la zone trigger.
     private void OnTriggerExit2D(Collider2D other)
     {
         UpdatePresence(other, false);
     }
 
-    /// sent
+
     /// Met à jour la présence du joueur/fauteuil et vérifie si la condition de transition est remplie.
     private void UpdatePresence(Collider2D other, bool isInside)
     {
@@ -128,7 +116,6 @@ public class LevelTransitionZone : MonoBehaviour
         }
     }
 
-    /// sent
     /// Charge la scène cible et déverrouille les niveaux en progression.
     private void LoadTargetScene()
     {

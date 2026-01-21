@@ -4,8 +4,6 @@ using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
 /// sent
-/// Simple traffic light: toggles red/green visuals every switchInterval seconds.
-/// When red, the linked dangerZone collider is enabled and will trigger an accident.
 public class TrafficLightController : MonoBehaviour
 {
     [Header("Feux visuels")]
