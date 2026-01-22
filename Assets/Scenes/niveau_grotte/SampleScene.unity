@@ -1680,7 +1680,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneName: hub
-  nextSceneToUnlock: interieur_magasin
+  nextSceneToUnlock: quete_croquettes
   unlockTargetSceneToo: 1
   player: {fileID: 359259516}
   wheelchair: {fileID: 1155523104}
@@ -2409,9 +2409,7 @@ MonoBehaviour:
     m_Bits: 0
   handPoint: {fileID: 0}
   showGizmo: 1
-  collectToInventory: 1
-  hideCollectedObject: 1
-  collectedItemIds: []
+  CollectedItems: []
 --- !u!114 &359259516
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2441,13 +2439,16 @@ MonoBehaviour:
   attachYOffset: 0.5
   pushExtraBack: 0.35
   matchWheelchairColliderToPlayer: 1
-  allowFreeVerticalWhenNoGravity: 1
   debugJump: 0
   controlSpriteManually: 0
   spriteRenderer: {fileID: 0}
   moveCycleLeft: []
   idleSpriteLeft: {fileID: 0}
   moveFrameRate: 8
+  climbSpeed: 4
+  ladderLayer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!1 &459468312
 GameObject:
   m_ObjectHideFlags: 0
@@ -2876,7 +2877,6 @@ MonoBehaviour:
   playerTarget: {fileID: 359259513}
   smoothSpeed: 0.125
   offset: {x: 0, y: 0, z: -10}
-  globalZoomOut: 0
   minDistance: 3
   maxDistance: 15
   minOrthographicSize: 5
@@ -2885,9 +2885,6 @@ MonoBehaviour:
   followSinglePlayer: 0
   singlePlayerZoom: 6
   singlePlayerSmoothSpeed: 0.05
-  manualFocus: 0
-  manualTarget: {fileID: 0}
-  manualSize: 19
 --- !u!1 &559267093
 GameObject:
   m_ObjectHideFlags: 0
@@ -4483,9 +4480,7 @@ MonoBehaviour:
     m_Bits: 0
   handPoint: {fileID: 0}
   showGizmo: 1
-  collectToInventory: 1
-  hideCollectedObject: 1
-  collectedItemIds: []
+  CollectedItems: []
 --- !u!1 &1168831498
 GameObject:
   m_ObjectHideFlags: 0

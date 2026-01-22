@@ -20716,16 +20716,6 @@ MonoBehaviour:
   m_Script: {fileID: 19106, guid: 0000000000000000e000000000000000, type: 0}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.PanelInputConfiguration
-  m_Settings:
-    m_ProcessWorldSpaceInput: 1
-    m_InteractionLayers:
-      serializedVersion: 2
-      m_Bits: 251
-    m_MaxInteractionDistance: Infinity
-    m_DefaultEventCameraIsMainCamera: 1
-    m_EventCameras: []
-    m_PanelInputRedirection: 0
-    m_AutoCreatePanelComponents: 1
 --- !u!114 &974230593
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23910,7 +23900,7 @@ MonoBehaviour:
   spriteRenderer: {fileID: 1218717946}
   viewDown: {fileID: 0}
   viewUp: {fileID: 0}
-  viewSide: {fileID: 3921899950966012920, guid: 2b2c2c61045368f4d97d8b2f4b5f056b, type: 3}
+  viewSide: {fileID: 0}
   idleDown: {fileID: 0}
   idleUp: {fileID: 0}
   idleSide: {fileID: -3193946927348053356, guid: 819b38bed7b1a074187892ea075351ce, type: 3}
@@ -27934,8 +27924,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2097022803}
-  - component: {fileID: 2097022802}
-  - component: {fileID: 2097022801}
+  - component: {fileID: 2097022805}
+  - component: {fileID: 2097022804}
   m_Layer: 0
   m_Name: fin_niveau
   m_TagString: Untagged
@@ -27943,7 +27933,22 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &2097022801
+--- !u!4 &2097022803
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2097022800}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.78, y: -11.28, z: -0.16996369}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2097022804
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -27962,7 +27967,7 @@ MonoBehaviour:
   wheelchair: {fileID: 0}
   requireBothInside: 1
   logEvents: 1
---- !u!61 &2097022802
+--- !u!61 &2097022805
 BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -27996,7 +28001,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.10288501, y: -0.04115343}
+  m_Offset: {x: 0.21809459, y: 0.04361868}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -28006,23 +28011,8 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 3.5927057, y: 2.234622}
+  m_Size: {x: 3.617136, y: 2.0904722}
   m_EdgeRadius: 0
---- !u!4 &2097022803
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2097022800}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.78, y: -11.41, z: -0.16996369}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
