@@ -607,9 +607,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pickupKey: 98
   pickupRadius: 1
-  interactRadius: 1.2
+  pickableLayer:
+    serializedVersion: 2
+    m_Bits: 0
   handPoint: {fileID: 0}
   showGizmo: 1
+  CollectedItems: []
 --- !u!60 &558353336
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -982,9 +985,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pickupKey: 115
   pickupRadius: 1
-  interactRadius: 1.2
+  pickableLayer:
+    serializedVersion: 2
+    m_Bits: 0
   handPoint: {fileID: 0}
   showGizmo: 1
+  CollectedItems: []
 --- !u!114 &693956447
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -999,9 +1005,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pickupKey: 101
   pickupRadius: 1
-  interactRadius: 1.2
+  pickableLayer:
+    serializedVersion: 2
+    m_Bits: 0
   handPoint: {fileID: 0}
   showGizmo: 1
+  CollectedItems: []
 --- !u!114 &693956448
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1116,13 +1125,16 @@ MonoBehaviour:
   attachYOffset: 0.5
   pushExtraBack: 0.35
   matchWheelchairColliderToPlayer: 1
-  allowFreeVerticalWhenNoGravity: 1
   debugJump: 0
   controlSpriteManually: 0
   spriteRenderer: {fileID: 0}
   moveCycleLeft: []
   idleSpriteLeft: {fileID: 0}
   moveFrameRate: 8
+  climbSpeed: 4
+  ladderLayer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!212 &693956452
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -8380,6 +8392,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneName: hub
+  nextSceneToUnlock: boll
+  unlockTargetSceneToo: 1
   player: {fileID: 693956451}
   wheelchair: {fileID: 558353334}
   requireBothInside: 1

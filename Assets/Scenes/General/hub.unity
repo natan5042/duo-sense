@@ -1364,6 +1364,8 @@ MonoBehaviour:
   interactKey: 274
   audioSource: {fileID: 0}
   interactClip: {fileID: 0}
+  interactVolume: 1
+  useAudioSource: 1
 --- !u!61 &448829417
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -2035,6 +2037,8 @@ MonoBehaviour:
   interactKey: 102
   audioSource: {fileID: 0}
   interactClip: {fileID: 0}
+  interactVolume: 1
+  useAudioSource: 1
 --- !u!1 &689859449
 GameObject:
   m_ObjectHideFlags: 0
@@ -2327,7 +2331,6 @@ MonoBehaviour:
   playerTarget: {fileID: 1594076300}
   smoothSpeed: 0.125
   offset: {x: 0, y: 0, z: -10}
-  globalZoomOut: 0
   minDistance: 3
   maxDistance: 4
   minOrthographicSize: 5
@@ -2336,9 +2339,6 @@ MonoBehaviour:
   followSinglePlayer: 0
   singlePlayerZoom: 4
   singlePlayerSmoothSpeed: 0.05
-  manualFocus: 0
-  manualTarget: {fileID: 0}
-  manualSize: 19
 --- !u!1 &802745601
 GameObject:
   m_ObjectHideFlags: 0
@@ -4321,7 +4321,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   levels:
   - button: {fileID: 424787237}
-    sceneName: SampleScene
+    sceneName: CASTLE_niveau2
     lockedGraphic: {fileID: 0}
     unlockedFrontGraphic: {fileID: 0}
   - button: {fileID: 959113232}
@@ -4337,7 +4337,7 @@ MonoBehaviour:
     lockedGraphic: {fileID: 837236409}
     unlockedFrontGraphic: {fileID: 1946776148}
   - button: {fileID: 2059104421}
-    sceneName: quete_croquettes
+    sceneName: niveau2
     lockedGraphic: {fileID: 2018366550}
     unlockedFrontGraphic: {fileID: 285534012}
   - button: {fileID: 1649154757}
@@ -4352,7 +4352,7 @@ MonoBehaviour:
   defaultFirstScene: Level1
   logDebug: 0
   alwaysAllowFirstButton: 1
-  introSceneName: SampleScene
+  introSceneName: CASTLE_niveau2
   introDialogueClip: {fileID: 8300000, guid: 74f7e4faa17392c4ea6579806fc82bf0, type: 3}
   introSubtitle: "Achille : \u201CC\u2019est compl\xE9tement ridicule, en quoi une
     personne aveugle pourrait m\u2019aider ?\u201D\r\nAchille : \u201CQuel horreur

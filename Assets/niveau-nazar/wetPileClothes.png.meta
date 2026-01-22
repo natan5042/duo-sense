@@ -1,0 +1,559 @@
+fileFormatVersion: 2
+guid: e0faab3504c0e814c80cf299165bf751
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -1070060626667751649
+    second: wetPileClothes_0
+  - first:
+      213: 6324190390595263193
+    second: wetPileClothes_1
+  - first:
+      213: 8763637964454147864
+    second: wetPileClothes_2
+  - first:
+      213: -5546761252162683960
+    second: wetPileClothes_3
+  - first:
+      213: -5913792181197858790
+    second: wetPileClothes_4
+  - first:
+      213: -5163962062638265661
+    second: wetPileClothes_5
+  - first:
+      213: -571291055431346496
+    second: wetPileClothes_6
+  - first:
+      213: 4506372104379009068
+    second: wetPileClothes_7
+  - first:
+      213: -3251619665065029752
+    second: wetPileClothes_8
+  - first:
+      213: 7954868447899154444
+    second: wetPileClothes_9
+  - first:
+      213: 5165320195501648426
+    second: wetPileClothes_10
+  - first:
+      213: -2941713384012204075
+    second: wetPileClothes_11
+  - first:
+      213: -5706215881890933954
+    second: wetPileClothes_12
+  - first:
+      213: 5093678356985289244
+    second: wetPileClothes_13
+  - first:
+      213: 7868954838462543318
+    second: wetPileClothes_14
+  - first:
+      213: -2887749053236534625
+    second: wetPileClothes_15
+  - first:
+      213: 6078152456543562280
+    second: wetPileClothes_16
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: wetPileClothes_0
+      rect:
+        serializedVersion: 2
+        x: 3
+        y: 32
+        width: 1019
+        height: 987
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f17365b87816621f0800000000000000
+      internalID: -1070060626667751649
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wetPileClothes_1
+      rect:
+        serializedVersion: 2
+        x: 655
+        y: 733
+        width: 17
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9da9e5b37a904c750800000000000000
+      internalID: 6324190390595263193
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wetPileClothes_2
+      rect:
+        serializedVersion: 2
+        x: 185
+        y: 311
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 817ba630c42be9970800000000000000
+      internalID: 8763637964454147864
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wetPileClothes_3
+      rect:
+        serializedVersion: 2
+        x: 858
+        y: 300
+        width: 6
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8cb31f67702f503b0800000000000000
+      internalID: -5546761252162683960
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wetPileClothes_4
+      rect:
+        serializedVersion: 2
+        x: 168
+        y: 304
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a181834085dfdeda0800000000000000
+      internalID: -5913792181197858790
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wetPileClothes_5
+      rect:
+        serializedVersion: 2
+        x: 174
+        y: 287
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3ca4ad62ddbe558b0800000000000000
+      internalID: -5163962062638265661
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wetPileClothes_6
+      rect:
+        serializedVersion: 2
+        x: 247
+        y: 227
+        width: 8
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0c618a9dfcd5218f0800000000000000
+      internalID: -571291055431346496
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wetPileClothes_7
+      rect:
+        serializedVersion: 2
+        x: 577
+        y: 177
+        width: 9
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c288d3b9d89d98e30800000000000000
+      internalID: 4506372104379009068
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wetPileClothes_8
+      rect:
+        serializedVersion: 2
+        x: 599
+        y: 175
+        width: 6
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 88fcf17742defd2d0800000000000000
+      internalID: -3251619665065029752
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wetPileClothes_9
+      rect:
+        serializedVersion: 2
+        x: 726
+        y: 163
+        width: 10
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c08fdf7e4be556e60800000000000000
+      internalID: 7954868447899154444
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wetPileClothes_10
+      rect:
+        serializedVersion: 2
+        x: 351
+        y: 159
+        width: 19
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a2ae60cc957eea740800000000000000
+      internalID: 5165320195501648426
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wetPileClothes_11
+      rect:
+        serializedVersion: 2
+        x: 365
+        y: 163
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5d7b0fa534fec27d0800000000000000
+      internalID: -2941713384012204075
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wetPileClothes_12
+      rect:
+        serializedVersion: 2
+        x: 369
+        y: 160
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e33d23463e27fc0b0800000000000000
+      internalID: -5706215881890933954
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wetPileClothes_13
+      rect:
+        serializedVersion: 2
+        x: 370
+        y: 159
+        width: 15
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c1a143c6a7160b640800000000000000
+      internalID: 5093678356985289244
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wetPileClothes_14
+      rect:
+        serializedVersion: 2
+        x: 575
+        y: 126
+        width: 33
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6d5b62cebb4243d60800000000000000
+      internalID: 7868954838462543318
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wetPileClothes_15
+      rect:
+        serializedVersion: 2
+        x: 704
+        y: 160
+        width: 10
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f92ad593987ace7d0800000000000000
+      internalID: -2887749053236534625
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wetPileClothes_16
+      rect:
+        serializedVersion: 2
+        x: 713
+        y: 159
+        width: 18
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 82a62fea47fe95450800000000000000
+      internalID: 6078152456543562280
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      wetPileClothes_0: -1070060626667751649
+      wetPileClothes_1: 6324190390595263193
+      wetPileClothes_10: 5165320195501648426
+      wetPileClothes_11: -2941713384012204075
+      wetPileClothes_12: -5706215881890933954
+      wetPileClothes_13: 5093678356985289244
+      wetPileClothes_14: 7868954838462543318
+      wetPileClothes_15: -2887749053236534625
+      wetPileClothes_16: 6078152456543562280
+      wetPileClothes_2: 8763637964454147864
+      wetPileClothes_3: -5546761252162683960
+      wetPileClothes_4: -5913792181197858790
+      wetPileClothes_5: -5163962062638265661
+      wetPileClothes_6: -571291055431346496
+      wetPileClothes_7: 4506372104379009068
+      wetPileClothes_8: -3251619665065029752
+      wetPileClothes_9: 7954868447899154444
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
