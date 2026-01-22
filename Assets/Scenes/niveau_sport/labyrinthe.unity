@@ -368,7 +368,7 @@ MonoBehaviour:
   minOrthographicSize: 5
   maxOrthographicSize: 10
   zoomSmoothSpeed: 2
-  followSinglePlayer: 0
+  followSinglePlayer: 1
   singlePlayerZoom: 15
   singlePlayerSmoothSpeed: 0.05
 --- !u!1 &493791577
@@ -474,6 +474,7 @@ GameObject:
   - component: {fileID: 938059681}
   - component: {fileID: 938059680}
   - component: {fileID: 938059679}
+  - component: {fileID: 938059687}
   m_Layer: 0
   m_Name: Iris
   m_TagString: Player
@@ -495,9 +496,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pickupKey: 115
   pickupRadius: 1
-  interactRadius: 1.2
+  pickableLayer:
+    serializedVersion: 2
+    m_Bits: 0
   handPoint: {fileID: 0}
   showGizmo: 1
+  CollectedItems: []
 --- !u!114 &938059680
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -512,9 +516,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pickupKey: 101
   pickupRadius: 1
-  interactRadius: 1.2
+  pickableLayer:
+    serializedVersion: 2
+    m_Bits: 0
   handPoint: {fileID: 0}
   showGizmo: 1
+  CollectedItems: []
 --- !u!114 &938059681
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -629,13 +636,16 @@ MonoBehaviour:
   attachYOffset: 0.5
   pushExtraBack: 0.35
   matchWheelchairColliderToPlayer: 1
-  allowFreeVerticalWhenNoGravity: 1
   debugJump: 0
   controlSpriteManually: 0
   spriteRenderer: {fileID: 0}
   moveCycleLeft: []
   idleSpriteLeft: {fileID: 0}
   moveFrameRate: 8
+  climbSpeed: 4
+  ladderLayer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!212 &938059685
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -707,6 +717,33 @@ Transform:
   - {fileID: 493791578}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &938059687
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 938059678}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fedf6e63f2196c43beb5b318b9bd0fc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 6
+  dashSpeed: 25
+  dashDuration: 0.2
+  dashCooldown: 1
+  dashKey: 304
+  wheelchair: {fileID: 0}
+  interactRadius: 1.5
+  interactKey: 115
+  spriteRenderer: {fileID: 0}
+  viewDown: {fileID: 0}
+  viewUp: {fileID: 0}
+  viewSide: {fileID: 0}
+  idleDown: {fileID: 0}
+  idleUp: {fileID: 0}
+  idleSide: {fileID: 0}
 --- !u!1 &1306708385
 GameObject:
   m_ObjectHideFlags: 0
@@ -46283,6 +46320,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneName: fin_niveau2
+  nextSceneToUnlock: niveau2
+  unlockTargetSceneToo: 1
   player: {fileID: 938059684}
   wheelchair: {fileID: 0}
   requireBothInside: 1

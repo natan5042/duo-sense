@@ -4352,6 +4352,7 @@ MonoBehaviour:
   defaultFirstScene: Level1
   logDebug: 0
   alwaysAllowFirstButton: 1
+  lockOnlyFirstAtStartup: 0
   introSceneName: CASTLE_niveau2
   introDialogueClip: {fileID: 8300000, guid: 74f7e4faa17392c4ea6579806fc82bf0, type: 3}
   introSubtitle: "Achille : \u201CC\u2019est compl\xE9tement ridicule, en quoi une
@@ -5110,7 +5111,7 @@ GameObject:
   - component: {fileID: 1150192619}
   m_Layer: 0
   m_Name: iris vue dessus_0
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

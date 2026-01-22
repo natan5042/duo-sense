@@ -330,8 +330,10 @@ MonoBehaviour:
   doorOpenSound: {fileID: 8300000, guid: 42730df003456f340ba6746bb1cdaf5b, type: 3}
   soundVolume: 1
   delayBeforeDisappear: 0.5
-  nextSceneName: NiveauNathan
+  nextSceneName: hub
   loadNextBuildIndexIfEmpty: 1
+  levelToUnlockOnExit: niveau2
+  unlockNextSceneIfEmpty: 1
   debugLogs: 1
 --- !u!61 &65079607
 BoxCollider2D:
@@ -16109,9 +16111,7 @@ MonoBehaviour:
     m_Bits: 0
   handPoint: {fileID: 0}
   showGizmo: 1
-  collectToInventory: 1
-  hideCollectedObject: 1
-  collectedItemIds: []
+  CollectedItems: []
 --- !u!60 &310298688
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -16606,7 +16606,6 @@ MonoBehaviour:
   playerTarget: {fileID: 1823726731}
   smoothSpeed: 0.125
   offset: {x: 0, y: 0, z: -10}
-  globalZoomOut: 0
   minDistance: 3
   maxDistance: 15
   minOrthographicSize: 5
@@ -16615,9 +16614,6 @@ MonoBehaviour:
   followSinglePlayer: 0
   singlePlayerZoom: 20
   singlePlayerSmoothSpeed: 0.05
-  manualFocus: 0
-  manualTarget: {fileID: 570037969}
-  manualSize: 19
 --- !u!114 &387005160
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22328,9 +22324,7 @@ MonoBehaviour:
     m_Bits: 0
   handPoint: {fileID: 0}
   showGizmo: 1
-  collectToInventory: 1
-  hideCollectedObject: 1
-  collectedItemIds: []
+  CollectedItems: []
 --- !u!114 &1823726726
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22445,13 +22439,16 @@ MonoBehaviour:
   attachYOffset: 0.5
   pushExtraBack: 0.35
   matchWheelchairColliderToPlayer: 1
-  allowFreeVerticalWhenNoGravity: 1
   debugJump: 0
   controlSpriteManually: 0
   spriteRenderer: {fileID: 0}
   moveCycleLeft: []
   idleSpriteLeft: {fileID: 0}
   moveFrameRate: 8
+  climbSpeed: 4
+  ladderLayer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!212 &1823726730
 SpriteRenderer:
   m_ObjectHideFlags: 0

@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 
 /// sent
 /// Gère la zone de la porte : son d'ouverture, animation, disparition du perso et changement de scène
@@ -29,6 +30,8 @@ public class DoorZoneTrigger : MonoBehaviour
     [SerializeField] private float delayBeforeDisappear = 0.5f;  // Délai avant que le perso disparaisse
     [SerializeField] private string nextSceneName = "";  // Nom de la scène à charger (optionnel)
     [SerializeField] private bool loadNextBuildIndexIfEmpty = true; // Si vide, charger la scène suivante du Build Settings
+    [SerializeField] private string levelToUnlockOnExit = ""; // Nom du niveau à déverrouiller quand on change de scène
+    [SerializeField] private bool unlockNextSceneIfEmpty = true; // Utiliser la scène cible si aucun nom fourni
     [SerializeField] private bool debugLogs = true;
 
     private Collider2D triggerCollider;
@@ -289,6 +292,7 @@ public class DoorZoneTrigger : MonoBehaviour
         if (isLoadingScene) yield break;
 
         string sceneToLoad = nextSceneName;
+        string sceneToUnlock = ResolveSceneToUnlock();
 
         if (string.IsNullOrEmpty(sceneToLoad) && loadNextBuildIndexIfEmpty)
         {
@@ -296,9 +300,15 @@ public class DoorZoneTrigger : MonoBehaviour
             int targetIndex = currentIndex + 1;
             if (targetIndex < SceneManager.sceneCountInBuildSettings)
             {
+                // Déverrouille le prochain niveau si demandé
+                if (string.IsNullOrEmpty(sceneToUnlock) && unlockNextSceneIfEmpty)
+                {
+                    sceneToUnlock = ResolveSceneNameByIndex(targetIndex);
+                }
                 isLoadingScene = true;
                 yield return new WaitForSeconds(0.5f);
                 if (debugLogs) Debug.Log($"[DoorZone] Chargement de la scène index: {targetIndex}");
+                UnlockScene(sceneToUnlock);
                 SceneManager.LoadScene(targetIndex);
                 yield break;
             }
@@ -314,7 +324,39 @@ public class DoorZoneTrigger : MonoBehaviour
             isLoadingScene = true;
             yield return new WaitForSeconds(0.5f);
             if (debugLogs) Debug.Log($"[DoorZone] Chargement de la scène: {sceneToLoad}");
+            // Si aucun nom spécifique d'unlock n'est fourni, on utilise la scène chargée
+            if (string.IsNullOrEmpty(sceneToUnlock) && unlockNextSceneIfEmpty)
+            {
+                sceneToUnlock = sceneToLoad;
+            }
+            UnlockScene(sceneToUnlock);
             SceneManager.LoadScene(sceneToLoad);
         }
+    }
+
+    // Déverrouille et persiste le niveau si un nom valide est fourni
+    private void UnlockScene(string sceneName)
+    {
+        if (string.IsNullOrEmpty(sceneName)) return;
+        bool added = LevelProgressManager.Unlock(sceneName);
+        if (debugLogs && added)
+        {
+            Debug.Log($"[DoorZone] Niveau déverrouillé: {sceneName}");
+        }
+    }
+
+    // Détermine quel niveau déverrouiller en priorité
+    private string ResolveSceneToUnlock()
+    {
+        if (!string.IsNullOrEmpty(levelToUnlockOnExit)) return levelToUnlockOnExit;
+        if (!string.IsNullOrEmpty(nextSceneName) && unlockNextSceneIfEmpty) return nextSceneName;
+        return null;
+    }
+
+    private string ResolveSceneNameByIndex(int buildIndex)
+    {
+        string path = SceneUtility.GetScenePathByBuildIndex(buildIndex);
+        if (string.IsNullOrEmpty(path)) return null;
+        return Path.GetFileNameWithoutExtension(path);
     }
 }

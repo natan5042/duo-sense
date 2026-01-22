@@ -29,6 +29,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/niveau_maison/maison1.unity
     guid: 175c72e41973ee940b753144b8a010f0
+  - enabled: 1
+    path: Assets/Scenes/niveau_medecin/NiveauNathan.unity
+    guid: 51bbd9cfb17c3ba4ca8fc7929518cbca
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

@@ -38,8 +38,8 @@ public class CameraFollow : MonoBehaviour
         {
             Debug.LogError("CameraFollow nécessite un composant Camera!");
         }
-        // La cible de base est Achille (priorité)
-        currentTarget = wheelchairTarget; 
+        // La cible de base est le fauteuil s'il existe, sinon Iris
+        currentTarget = wheelchairTarget != null ? wheelchairTarget : playerTarget; 
     }
 
     // Fonction publique pour être appelée par un Trigger Zone
@@ -64,7 +64,9 @@ public class CameraFollow : MonoBehaviour
 
     void LateUpdate()
     {
-        if (wheelchairTarget == null || playerTarget == null) return;
+        bool hasWheelchair = wheelchairTarget != null;
+        bool hasPlayer = playerTarget != null;
+        if (!hasWheelchair && !hasPlayer) return;
 
         Vector3 desiredPosition;
         float desiredSize;
@@ -82,7 +84,7 @@ public class CameraFollow : MonoBehaviour
             desiredSize = manualFocusSize;
             currentSmoothSpeed = singlePlayerSmoothSpeed;
         }
-        else if (followSinglePlayer)
+        else if (followSinglePlayer && hasPlayer)
         {
             // MODE 1 : SUIVI D'IRIS SEULE (Fin de niveau)
             currentTarget = playerTarget;
@@ -93,31 +95,41 @@ public class CameraFollow : MonoBehaviour
         else
         {
             // MODE 2 : SUIVI DUO (Mode normal)
-            
-            // Calculer la distance entre les deux joueurs
-            float distance = Vector2.Distance(
-                new Vector2(wheelchairTarget.position.x, wheelchairTarget.position.y),
-                new Vector2(playerTarget.position.x, playerTarget.position.y)
-            );
-            
             currentSmoothSpeed = smoothSpeed;
 
-            // Si la distance est trop grande, re-focus sur le fauteuil (Achille)
-            if (distance > maxDistance)
+            if (hasWheelchair && hasPlayer)
             {
-                currentTarget = wheelchairTarget;
-                desiredPosition = currentTarget.position + offset;
-                desiredSize = minOrthographicSize;
+                // Calculer la distance entre les deux joueurs
+                float distance = Vector2.Distance(
+                    new Vector2(wheelchairTarget.position.x, wheelchairTarget.position.y),
+                    new Vector2(playerTarget.position.x, playerTarget.position.y)
+                );
+
+                // Si la distance est trop grande, re-focus sur le fauteuil (Achille)
+                if (distance > maxDistance)
+                {
+                    currentTarget = wheelchairTarget;
+                    desiredPosition = currentTarget.position + offset;
+                    desiredSize = minOrthographicSize;
+                }
+                else
+                {
+                    // Si la distance est acceptable, suivre le point milieu
+                    Vector3 midpoint = (wheelchairTarget.position + playerTarget.position) / 2f;
+                    desiredPosition = midpoint + offset;
+
+                    // Ajuster le zoom
+                    float distanceRatio = Mathf.InverseLerp(minDistance, maxDistance, distance);
+                    desiredSize = Mathf.Lerp(minOrthographicSize, maxOrthographicSize, distanceRatio);
+                }
             }
             else
             {
-                // Si la distance est acceptable, suivre le point milieu
-                Vector3 midpoint = (wheelchairTarget.position + playerTarget.position) / 2f;
-                desiredPosition = midpoint + offset;
-
-                // Ajuster le zoom
-                float distanceRatio = Mathf.InverseLerp(minDistance, maxDistance, distance);
-                desiredSize = Mathf.Lerp(minOrthographicSize, maxOrthographicSize, distanceRatio);
+                // Si un seul personnage existe, on le suit simplement
+                currentTarget = hasWheelchair ? wheelchairTarget : playerTarget;
+                desiredPosition = currentTarget.position + offset;
+                desiredSize = singlePlayerZoom;
+                currentSmoothSpeed = singlePlayerSmoothSpeed;
             }
         }
 

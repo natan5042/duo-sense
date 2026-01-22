@@ -23,6 +23,7 @@ public class LevelSelectionMenu : MonoBehaviour
     [SerializeField] private string defaultFirstScene = "Level1"; // Scène qui doit être déverrouillée au départ
     [SerializeField] private bool logDebug = true;
     [SerializeField] private bool alwaysAllowFirstButton = true; // Secours: le premier bouton reste cliquable quoi qu'il arrive
+    [SerializeField] private bool lockOnlyFirstAtStartup = false; // Pour les tests: verrouille tout sauf la première scène
 
     [Header("Intro niveau 1 (dialogue avant chargement)")]
     [SerializeField] private string introSceneName = ""; // Nom exact de la scène niveau1
@@ -58,6 +59,11 @@ public class LevelSelectionMenu : MonoBehaviour
         {
             // Assure que le premier niveau est toujours disponible au lancement
             string firstScene = ResolveFirstSceneName();
+            if (lockOnlyFirstAtStartup && !string.IsNullOrEmpty(firstScene))
+            {
+                LevelProgressManager.LockAllExcept(firstScene);
+                if (logDebug) Debug.Log($"[LevelSelectionMenu] Locked all, kept only '{firstScene}' unlocked (test mode).");
+            }
             if (!string.IsNullOrEmpty(firstScene))
             {
                 LevelProgressManager.EnsureDefaultUnlocked(firstScene);

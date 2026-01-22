@@ -2645,8 +2645,9 @@ GameObject:
   - component: {fileID: 639826694}
   - component: {fileID: 639826695}
   - component: {fileID: 639826696}
+  - component: {fileID: 639826697}
   m_Layer: 7
-  m_Name: fauteuilroulant vue droite_0
+  m_Name: fauteuilroulant
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2858,6 +2859,29 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.11268616, y: 0.0874255}
   m_EdgeRadius: 0
+--- !u!114 &639826697
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 639826689}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bcc1739f76744724da73a46a88c1ec6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 5
+  feetCheck: {fileID: 0}
+  feetCheckSize: {x: 0.5, y: 0.2}
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  controlSpriteManually: 1
+  spriteRenderer: {fileID: 0}
+  moveCycleLeft: []
+  idleSpriteLeft: {fileID: 0}
+  moveFrameRate: 8
 --- !u!1 &658953059
 GameObject:
   m_ObjectHideFlags: 0
@@ -23870,8 +23894,9 @@ GameObject:
   - component: {fileID: 1218717944}
   - component: {fileID: 1218717948}
   - component: {fileID: 1218717949}
+  - component: {fileID: 1218717950}
   m_Layer: 7
-  m_Name: iris vue droite static_0
+  m_Name: iris
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -24069,6 +24094,45 @@ MonoBehaviour:
   interactableLayer:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &1218717950
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1218717943}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6372cd5278210574f89c82e32d2fd09f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 5
+  jumpForce: 10
+  groundCheck: {fileID: 0}
+  groundCheckRadius: 0.2
+  groundRayLength: 0.25
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  wheelchair: {fileID: 0}
+  helpDistance: 2
+  helpKey: 101
+  pushKey: 115
+  pushDistance: 1.2
+  attachBackOffset: 0.7
+  attachYOffset: 0.1
+  pushExtraBack: 0.45
+  matchWheelchairColliderToPlayer: 1
+  debugJump: 0
+  controlSpriteManually: 0
+  spriteRenderer: {fileID: 0}
+  moveCycleLeft: []
+  idleSpriteLeft: {fileID: 0}
+  moveFrameRate: 8
+  climbSpeed: 4
+  ladderLayer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!1 &1277363725
 GameObject:
   m_ObjectHideFlags: 0
@@ -27963,8 +28027,8 @@ MonoBehaviour:
   sceneName: hub
   nextSceneToUnlock: NiveauNathan
   unlockTargetSceneToo: 1
-  player: {fileID: 0}
-  wheelchair: {fileID: 0}
+  player: {fileID: 1218717950}
+  wheelchair: {fileID: 639826697}
   requireBothInside: 1
   logEvents: 1
 --- !u!61 &2097022805

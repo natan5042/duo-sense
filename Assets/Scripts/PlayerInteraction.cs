@@ -99,6 +99,11 @@ public class PlayerInteraction : MonoBehaviour
     [Header("Настройки взаимодействия")]
     public float interactionRange = 3f; // Радиус взаимодействия
     public LayerMask interactableLayer = -1; // Все слои (можно настроить)
+
+    [Header("Touches d'interaction")]
+    [SerializeField] private KeyCode defaultInteractionKey = KeyCode.S; // touche principale (ex: S)
+    [SerializeField] private KeyCode alternateInteractionKey = KeyCode.E; // touche secondaire (ex: E)
+    [SerializeField] private KeyCode laundryInteractionKey = KeyCode.M; // touche pour la corbeille/lave-linge
     
     private IInteractable currentInteractable = null; // Текущий объект для взаимодействия
     
@@ -114,29 +119,24 @@ public class PlayerInteraction : MonoBehaviour
         // Постоянно ищем ближайший интерактивный объект
         FindNearestInteractable();
         
-        // Обрабатываем нажатие клавиш (M для корзины и стиралки, E для остального)
+        // Обрабатываем нажатие клавиш (S/E par défaut, M pour la corbeille/lave-linge)
         bool shouldInteract = false;
-        KeyCode requiredKey = KeyCode.E;
-        
+        KeyCode primaryKey = defaultInteractionKey;
+        KeyCode secondaryKey = alternateInteractionKey;
+
         if (currentInteractable != null)
         {
-            // Корзина и стиралка - клавиша M (для мужика на коляске)
             if (currentInteractable is LaundryBasket || currentInteractable is WashingMachine)
             {
-                requiredKey = KeyCode.M;
+                primaryKey = laundryInteractionKey;
+                secondaryKey = KeyCode.None; // éviter les touches alternatives pour ces cas spécifiques
             }
-            // Остальное - клавиша E
-            else
-            {
-                requiredKey = KeyCode.E;
-            }
-            
-            shouldInteract = Input.GetKeyDown(requiredKey);
+
+            shouldInteract = Input.GetKeyDown(primaryKey) || (secondaryKey != KeyCode.None && Input.GetKeyDown(secondaryKey));
         }
         else
         {
-            // Fallback: пробуем E
-            shouldInteract = Input.GetKeyDown(KeyCode.E);
+            shouldInteract = Input.GetKeyDown(primaryKey) || (secondaryKey != KeyCode.None && Input.GetKeyDown(secondaryKey));
         }
         
         if (shouldInteract)

@@ -69,6 +69,17 @@ public static class LevelProgressManager
         return true;
     }
 
+    // Verrouille tout et ne laisse qu'une scène déverrouillée (utile pour les tests)
+    public static void LockAllExcept(string sceneName)
+    {
+        unlocked.Clear();
+        if (!string.IsNullOrEmpty(sceneName))
+        {
+            unlocked.Add(sceneName);
+        }
+        Save();
+    }
+
     public static void EnsureDefaultUnlocked(string sceneName)
     {
         if (string.IsNullOrEmpty(sceneName)) return;
