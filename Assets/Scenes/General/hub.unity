@@ -4352,7 +4352,7 @@ MonoBehaviour:
   defaultFirstScene: Level1
   logDebug: 0
   alwaysAllowFirstButton: 1
-  lockOnlyFirstAtStartup: 0
+  lockOnlyFirstAtStartup: 1
   introSceneName: CASTLE_niveau2
   introDialogueClip: {fileID: 8300000, guid: 74f7e4faa17392c4ea6579806fc82bf0, type: 3}
   introSubtitle: "Achille : \u201CC\u2019est compl\xE9tement ridicule, en quoi une

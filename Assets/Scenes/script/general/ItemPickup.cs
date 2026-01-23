@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,11 +15,19 @@ public class ItemPickup : MonoBehaviour
     [Header("UI/Feedback (optionnel)")] 
     public bool showGizmo = true;
 
-    // Liste des IDs d'objets déjà collectés (utilisé par les quêtes)
-    public List<string> CollectedItems = new List<string>();
+    [Header("Mode Inventaire")] 
+    [Tooltip("Si vrai, on collecte directement dans l'inventaire au lieu de tenir l'objet en main.")]
+    public bool collectToInventory = true;
+    [Tooltip("Si vrai, l'objet est simplement désactivé dans la scène après collecte (il n'est pas détruit)." )]
+    public bool hideCollectedObject = true;
 
-    // Evénement déclenché quand un objet est ramassé
-    public event Action<PickableItem> onItemCollected;
+    [Header("Collecte")]
+    [Tooltip("Historique simple des identifiants ramassés. Peut être utilisé par un inventaire plus tard." )]
+    public List<string> collectedItemIds = new List<string>();
+
+    public IReadOnlyList<string> CollectedItems => collectedItemIds; // accès en lecture seule pour l'extérieur
+
+    public System.Action<PickableItem> onItemCollected;
 
     PickableItem heldItem;
 
@@ -61,29 +68,35 @@ public class ItemPickup : MonoBehaviour
             }
         }
 
-        if (nearest == null) return;
-
-        var item = nearest.GetComponent<PickableItem>();
-        if (item == null) return;
-
-        Transform holder = handPoint != null ? handPoint : transform;
-        item.OnPicked(holder);
-        heldItem = item;
-
-        // Ajouter l'ID à la liste des objets collectés (si non vide)
-        if (!string.IsNullOrEmpty(item.itemId) && !CollectedItems.Contains(item.itemId))
+        if (nearest != null)
         {
-            CollectedItems.Add(item.itemId);
-        }
+            var item = nearest.GetComponent<PickableItem>();
+            if (item != null)
+            {
+                Transform holder = handPoint != null ? handPoint : transform;
+                bool attachToHolder = !collectToInventory; // si inventaire, on ne l'attache pas à la main
 
-        // Notifier les abonnés
-        try
-        {
-            onItemCollected?.Invoke(item);
-        }
-        catch (Exception e)
-        {
-            Debug.LogWarning($"onItemCollected handler threw: {e}");
+                item.OnPicked(holder, attachToHolder);
+
+                // Stocke ce qui a été ramassé pour un futur inventaire/quête
+                collectedItemIds.Add(item.itemId);
+                onItemCollected?.Invoke(item);
+
+                if (collectToInventory)
+                {
+                    // On ne garde rien en main, on range dans le "sac"
+                    heldItem = null;
+                    if (hideCollectedObject)
+                    {
+                        item.gameObject.SetActive(false); // l'objet disparaît de la scène mais reste en mémoire
+                    }
+                }
+                else
+                {
+                    // Comportement précédent: porter l'objet
+                    heldItem = item;
+                }
+            }
         }
     }
 

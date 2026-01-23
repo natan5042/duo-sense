@@ -34702,7 +34702,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   menuCanvas: {fileID: 1589356116}
   detectionDistance: 100
-  interactKey: 273
+  interactKey: 274
   audioSource: {fileID: 0}
   interactClip: {fileID: 8300000, guid: 949de113ed9e3fb44acd4f48142e6313, type: 3}
   interactVolume: 1
@@ -36469,12 +36469,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   interactionRadius: 5
-  interactKey: 101
+  interactKey: 115
+  requireBothPlayers: 1
   teleportDestination: {x: -575, y: -0.37, z: -0.61}
+  player1: {fileID: 547278884}
+  player1Tag: Player
+  teleportDestinationPlayer1: {x: -576, y: -0.37, z: -0.61}
+  player2: {fileID: 1276250385}
+  player2Tag: Player
+  teleportDestinationPlayer2: {x: -575, y: -0.37, z: -0.61}
   doorName: Porte
   teleportCooldown: 1
-  player: {fileID: 547278884}
-  playerTag: Player
   debugLogs: 1
 --- !u!1 &312793974
 GameObject:
@@ -38813,9 +38818,15 @@ MonoBehaviour:
   - {fileID: 1523197855}
   - {fileID: 1611091278}
   requiredItemIds: []
-  playerPickup: {fileID: 0}
+  requiredItemCount: 0
+  verboseLogs: 0
+  pickupSources:
+  - {fileID: 547278885}
+  - {fileID: 1276250387}
+  playerPickupLegacy: {fileID: 0}
   visualObject: {fileID: 0}
-  unlockMessage: "Vous avez trouv\xE9 tous les objets ! Une sortie appara\xEEt..."
+  unlockMessage: "Vous avez trouv\xE9 tous les objets ! vous pouvez retourner a la
+    maison"
   unlockSound: {fileID: 0}
 --- !u!1 &538022088
 GameObject:
@@ -39301,7 +39312,7 @@ Transform:
   m_GameObject: {fileID: 547278883}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.003819293, z: -0, w: 0.9999928}
-  m_LocalPosition: {x: -679.62, y: -0.37, z: -2.29}
+  m_LocalPosition: {x: -694.03, y: -1.37, z: -1.5899999}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -39320,14 +39331,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 881ae0c915de39247b18367c3bf8aa62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pickupKey: 273
+  pickupKey: 274
   pickupRadius: 1.5
   pickableLayer:
     serializedVersion: 2
     m_Bits: 64
   handPoint: {fileID: 0}
   showGizmo: 1
-  CollectedItems: []
+  collectToInventory: 1
+  hideCollectedObject: 1
+  collectedItemIds: []
 --- !u!114 &547278886
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -48551,7 +48564,7 @@ Transform:
   m_GameObject: {fileID: 1197844009}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 53.66, y: 3, z: 0.27776158}
+  m_LocalPosition: {x: 53.89, y: 3, z: 0.27776158}
   m_LocalScale: {x: 12.547689, y: 9.012299, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -48805,8 +48818,14 @@ MonoBehaviour:
   - {fileID: 844601822}
   - {fileID: 99385982}
   - {fileID: 1611091278}
-  requiredItemIds: []
-  playerPickup: {fileID: 0}
+  requiredItemIds:
+  - 
+  requiredItemCount: 0
+  verboseLogs: 1
+  pickupSources:
+  - {fileID: 547278885}
+  - {fileID: 1276250387}
+  playerPickupLegacy: {fileID: 0}
   visualObject: {fileID: 1197844009}
   unlockMessage: "Vous avez trouv\xE9 tous les objets ! Une sortie appara\xEEt..."
   unlockSound: {fileID: 0}
@@ -101040,9 +101059,8 @@ GameObject:
   - component: {fileID: 1276250383}
   - component: {fileID: 1276250382}
   - component: {fileID: 1276250381}
-  - component: {fileID: 1276250380}
-  - component: {fileID: 1276250379}
   - component: {fileID: 1276250386}
+  - component: {fileID: 1276250387}
   m_Layer: 0
   m_Name: Iris
   m_TagString: Player
@@ -101050,38 +101068,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1276250379
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1276250378}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 881ae0c915de39247b18367c3bf8aa62, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  pickupKey: 115
-  pickupRadius: 1
-  pickableLayer:
-    serializedVersion: 2
-    m_Bits: 0
-  handPoint: {fileID: 0}
-  showGizmo: 1
-  CollectedItems: []
---- !u!114 &1276250380
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1276250378}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bb1f428d5eeab8141a5cb904054c4ae0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!50 &1276250381
 Rigidbody2D:
   serializedVersion: 5
@@ -101177,7 +101163,7 @@ MonoBehaviour:
     m_Bits: 8
   wheelchair: {fileID: 0}
   helpDistance: 2
-  helpKey: 115
+  helpKey: 101
   pushKey: 115
   pushDistance: 2
   attachBackOffset: 1.6
@@ -101258,7 +101244,7 @@ Transform:
   m_GameObject: {fileID: 1276250378}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -682.97, y: -0.27, z: 0}
+  m_LocalPosition: {x: -697.5, y: -0.81, z: 0.7}
   m_LocalScale: {x: 1.1355362, y: 1.0844941, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -101302,6 +101288,28 @@ CapsuleCollider2D:
   m_Offset: {x: 0, y: 0}
   m_Size: {x: 1.08, y: 3.96}
   m_Direction: 0
+--- !u!114 &1276250387
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1276250378}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 881ae0c915de39247b18367c3bf8aa62, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pickupKey: 115
+  pickupRadius: 2
+  pickableLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  handPoint: {fileID: 0}
+  showGizmo: 1
+  collectToInventory: 1
+  hideCollectedObject: 1
+  collectedItemIds: []
 --- !u!1 &1278767140
 GameObject:
   m_ObjectHideFlags: 0
@@ -102364,13 +102372,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e37a452987de2948b458b87fbdc9a56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  interactionRadius: 5
-  interactKey: 101
+  interactionRadius: 6
+  interactKey: 115
+  requireBothPlayers: 1
   teleportDestination: {x: -498, y: 23, z: 0}
+  player1: {fileID: 547278884}
+  player1Tag: Player
+  teleportDestinationPlayer1: {x: -498, y: 23, z: 0}
+  player2: {fileID: 1276250385}
+  player2Tag: Player
+  teleportDestinationPlayer2: {x: -499, y: 23, z: 0}
   doorName: Porte
   teleportCooldown: 1
-  player: {fileID: 0}
-  playerTag: Player
   debugLogs: 1
 --- !u!1 &1439576739
 GameObject:
@@ -102610,104 +102623,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 84788318}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1461684122
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1461684125}
-  - component: {fileID: 1461684124}
-  - component: {fileID: 1461684123}
-  m_Layer: 0
-  m_Name: fin-niveaux-car-rien
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1461684123
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1461684122}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9385f8a8cb90bfe4d84d95d7d27a750c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sceneName: hub
-  nextSceneToUnlock: maison1
-  unlockTargetSceneToo: 1
-  player: {fileID: 0}
-  wheelchair: {fileID: 0}
-  requireBothInside: 1
-  logEvents: 1
---- !u!61 &1461684124
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1461684122}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: -4.5170593, y: 4.1477427}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Size: {x: 10.034119, y: 9.2954855}
-  m_EdgeRadius: 0
---- !u!4 &1461684125
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1461684122}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -687.5991, y: -4.3706837, z: -0.2202444}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1464453347
 GameObject:
@@ -105175,6 +105090,7 @@ MonoBehaviour:
   defaultFirstScene: Level1
   logDebug: 1
   alwaysAllowFirstButton: 1
+  lockOnlyFirstAtStartup: 0
   introSceneName: 
   introDialogueClip: {fileID: 0}
   introSubtitle: 
@@ -106278,7 +106194,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   requirePlayerTag: 1
   playerTag: Player
-  pickupKey: 101
+  pickupKey: 115
   autoPickupOnEnter: 0
   spawnPoint: {fileID: 2051301055}
   replacementPrefab: {fileID: 0}
@@ -107864,7 +107780,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   requirePlayerTag: 1
   playerTag: Player
-  pickupKey: 101
+  pickupKey: 115
   autoPickupOnEnter: 0
   spawnPoint: {fileID: 2090499578}
   replacementPrefab: {fileID: 0}
@@ -109706,7 +109622,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 101
+  m_SortingOrder: 1000
   m_Sprite: {fileID: -4891816576465189485, guid: e50bbdf2546b53e4e9ce289f37aa382d, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -110494,7 +110410,7 @@ Transform:
   m_GameObject: {fileID: 2090499574}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0.999994, w: -0.0034723151}
-  m_LocalPosition: {x: 66.86857, y: 1.8239758, z: 0.27776158}
+  m_LocalPosition: {x: 66.87, y: 1.69, z: 0.27776158}
   m_LocalScale: {x: 0.71613246, y: 0.54247797, z: 0.5528}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -110684,4 +110600,3 @@ SceneRoots:
   - {fileID: 1882918187}
   - {fileID: 1912720903}
   - {fileID: 525564576}
-  - {fileID: 1461684125}
