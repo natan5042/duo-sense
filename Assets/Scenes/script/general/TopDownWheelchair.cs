@@ -36,8 +36,8 @@ public class TopDownWheelchair : MonoBehaviour
 
     void Update()
     {
-        // Блокируем движение если активна мини-игра готовки
-        if (CookingGame.IsCookingGameActive || ClothesLineGame.IsMiniGameActive)
+        // Блокируем движение если активна мини-игра
+        if (ShelfGame.IsShelfGameActive || CookingGame.IsCookingGameActive || ClothesLineGame.IsMiniGameActive)
         {
             moveInput = Vector2.zero;
             rb.linearVelocity = Vector2.zero;

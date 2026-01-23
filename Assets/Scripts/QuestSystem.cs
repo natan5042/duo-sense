@@ -15,6 +15,7 @@ namespace GameQuests
         }
         public List<string> steps = new List<string>();
         public List<bool> completedSteps = new List<bool>();
+        public List<string> stepAssignments = new List<string>(); // Имена персонажей для каждого шага
 
         public Quest(string title)
         {
@@ -25,6 +26,7 @@ namespace GameQuests
         {
             steps.Add(description);
             completedSteps.Add(false);
+            stepAssignments.Add(assignedTo); // Сохраняем имя персонажа
         }
 
         public void CompleteStep(int index)
@@ -32,6 +34,12 @@ namespace GameQuests
             if (index < 0 || index >= completedSteps.Count) return;
             completedSteps[index] = true;
             Debug.Log($"Quest '{title}': étape {index} marquée comme complétée.");
+            
+            // Уведомляем QuestSystem об изменении
+            if (QuestSystem.Instance != null)
+            {
+                QuestSystem.Instance.NotifyQuestsChanged();
+            }
         }
 
         public bool IsCompleted()
@@ -47,6 +55,9 @@ namespace GameQuests
         public static QuestSystem Instance { get; private set; }
 
         public List<Quest> activeQuests = new List<Quest>();
+        
+        // Событие для уведомления UI об изменениях
+        public System.Action OnQuestsChanged;
 
         void Awake()
         {
@@ -64,8 +75,22 @@ namespace GameQuests
         public void AddQuest(Quest q)
         {
             if (q == null) return;
+            
+            // Проверяем, нет ли уже такого квеста
+            foreach (Quest existing in activeQuests)
+            {
+                if (existing != null && existing.title == q.title)
+                {
+                    Debug.LogWarning($"QuestSystem: Квест '{q.title}' уже существует! Не добавляю дубликат.");
+                    return;
+                }
+            }
+            
             activeQuests.Add(q);
             Debug.Log($"QuestSystem: Quest '{q.title}' ajoutée. Total active: {activeQuests.Count}");
+            
+            // Уведомляем UI
+            NotifyQuestsChanged();
         }
 
         public void CompleteQuest(Quest q)
@@ -75,6 +100,17 @@ namespace GameQuests
             {
                 activeQuests.Remove(q);
                 Debug.Log($"QuestSystem: Quest '{q.title}' complétée et retirée. Remaining: {activeQuests.Count}");
+                
+                // Уведомляем UI
+                NotifyQuestsChanged();
+            }
+        }
+        
+        public void NotifyQuestsChanged()
+        {
+            if (OnQuestsChanged != null)
+            {
+                OnQuestsChanged.Invoke();
             }
         }
     }

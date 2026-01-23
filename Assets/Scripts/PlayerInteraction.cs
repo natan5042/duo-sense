@@ -116,6 +116,10 @@ public class PlayerInteraction : MonoBehaviour
             return; // Не обрабатываем взаимодействие, пока мини-игра активна
         }
         
+        // ВАЖНО: Блокируем S и стрелку вниз для взаимодействий ТОЛЬКО в сцене maison1
+        // Движение НЕ затронуто - это блокирует только взаимодействия с объектами
+        bool isMaisonScene = SceneManager.GetActiveScene().name == "maison1";
+        
         // Постоянно ищем ближайший интерактивный объект
         FindNearestInteractable();
         
@@ -132,11 +136,43 @@ public class PlayerInteraction : MonoBehaviour
                 secondaryKey = KeyCode.None; // éviter les touches alternatives pour ces cas spécifiques
             }
 
-            shouldInteract = Input.GetKeyDown(primaryKey) || (secondaryKey != KeyCode.None && Input.GetKeyDown(secondaryKey));
+            // БЛОКИРУЕМ S и стрелку вниз для взаимодействий в сцене maison1
+            if (isMaisonScene)
+            {
+                // Если primaryKey это S или DownArrow - игнорируем
+                if (primaryKey == KeyCode.S || primaryKey == KeyCode.DownArrow)
+                {
+                    primaryKey = KeyCode.None;
+                }
+                // Если secondaryKey это S или DownArrow - игнорируем
+                if (secondaryKey == KeyCode.S || secondaryKey == KeyCode.DownArrow)
+                {
+                    secondaryKey = KeyCode.None;
+                }
+            }
+
+            shouldInteract = (primaryKey != KeyCode.None && Input.GetKeyDown(primaryKey)) || 
+                            (secondaryKey != KeyCode.None && Input.GetKeyDown(secondaryKey));
         }
         else
         {
-            shouldInteract = Input.GetKeyDown(primaryKey) || (secondaryKey != KeyCode.None && Input.GetKeyDown(secondaryKey));
+            // БЛОКИРУЕМ S и стрелку вниз для взаимодействий в сцене maison1
+            if (isMaisonScene)
+            {
+                // Если primaryKey это S или DownArrow - игнорируем
+                if (primaryKey == KeyCode.S || primaryKey == KeyCode.DownArrow)
+                {
+                    primaryKey = KeyCode.None;
+                }
+                // Если secondaryKey это S или DownArrow - игнорируем
+                if (secondaryKey == KeyCode.S || secondaryKey == KeyCode.DownArrow)
+                {
+                    secondaryKey = KeyCode.None;
+                }
+            }
+            
+            shouldInteract = (primaryKey != KeyCode.None && Input.GetKeyDown(primaryKey)) || 
+                            (secondaryKey != KeyCode.None && Input.GetKeyDown(secondaryKey));
         }
         
         if (shouldInteract)

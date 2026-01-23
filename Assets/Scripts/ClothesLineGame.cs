@@ -365,8 +365,26 @@ public class ClothesLineGame : MonoBehaviour, IInteractable
                 player.DropItem(); // Белье повешено
             }
             
-            // Обновляем квест
-            UpdateQuestStep(3); // Шаг 3: Повесь одежду на сушилку - выполнен
+            // Обновляем квест - шаг 2: Accrocher le linge
+            UpdateQuestStep(2);
+            
+            // Проверяем, выполнен ли весь квест стирки
+            QuestSystem questSystem = QuestSystem.Instance;
+            if (questSystem != null)
+            {
+                foreach (Quest quest in questSystem.activeQuests)
+                {
+                    if (quest != null && quest.questName == "Faire la lessive")
+                    {
+                        if (quest.IsCompleted())
+                        {
+                            questSystem.CompleteQuest(quest);
+                            Debug.Log("ClothesLineGame: ✓✓✓ Квест стирки полностью выполнен и удален из системы!");
+                        }
+                        break;
+                    }
+                }
+            }
             
             // Задержка перед закрытием UI, чтобы дослушать фразу
             Invoke("CloseUI", 2f);
@@ -380,12 +398,17 @@ public class ClothesLineGame : MonoBehaviour, IInteractable
     void UpdateQuestStep(int stepIndex)
     {
         QuestSystem questSystem = QuestSystem.Instance;
-        if (questSystem != null && questSystem.activeQuests.Count > 0)
+        if (questSystem != null)
         {
-            Quest quest = questSystem.activeQuests[0]; // Первый квест - стирка
-            if (quest != null)
+            // Ищем квест стирки
+            foreach (Quest quest in questSystem.activeQuests)
             {
-                quest.CompleteStep(stepIndex);
+                if (quest != null && quest.questName == "Faire la lessive")
+                {
+                    quest.CompleteStep(stepIndex);
+                    Debug.Log($"ClothesLineGame: Шаг {stepIndex} квеста стирки выполнен!");
+                    return;
+                }
             }
         }
     }

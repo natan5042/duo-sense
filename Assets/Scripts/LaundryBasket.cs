@@ -40,16 +40,29 @@ public class LaundryBasket : MonoBehaviour, IInteractable
     void InitializeQuest()
     {
         QuestSystem questSystem = QuestSystem.Instance;
-        if (questSystem != null)
+        if (questSystem == null)
         {
-            Quest laundryQuest = new Quest("Lessive");
-            laundryQuest.AddStep("Va au panier pour trier", "Achille");
-            laundryQuest.AddStep("Charge les vêtements dans la machine à laver", "Achille");
-            laundryQuest.AddStep("Attends la fin du lavage", "Achille");
-            laundryQuest.AddStep("Accroche les vêtements sur l'étendoir", "Achille");
-            
-            questSystem.AddQuest(laundryQuest);
+            Debug.LogError("LaundryBasket: QuestSystem.Instance == null! Квест не может быть создан. Убедитесь что в сцене есть объект с компонентом QuestSystem.");
+            return;
         }
+        
+        // Проверяем, не создан ли уже квест стирки
+        foreach (Quest q in questSystem.activeQuests)
+        {
+            if (q != null && q.questName == "Faire la lessive")
+            {
+                Debug.Log("LaundryBasket: Квест стирки уже существует, используем существующий");
+                return;
+            }
+        }
+        
+        Quest laundryQuest = new Quest("Faire la lessive");
+        laundryQuest.AddStep("Trier le linge", "Achille");
+        laundryQuest.AddStep("Charger la machine à laver", "Achille");
+        laundryQuest.AddStep("Accrocher le linge", "Iris");
+        
+        questSystem.AddQuest(laundryQuest);
+        Debug.Log($"LaundryBasket: ✓ Квест стирки создан и добавлен в систему. Всего активных квестов: {questSystem.activeQuests.Count}");
     }
     
     [Header("Ограничения")]
@@ -106,8 +119,8 @@ public class LaundryBasket : MonoBehaviour, IInteractable
             StartSortingGame();
             hasInteracted = true; // Отмечаем, что взаимодействовали
             
-            // Обновляем квест
-            UpdateQuestStep(0); // Шаг 0: Пойди к корзине - выполнен
+            // Обновляем квест - шаг 0: Trier le linge
+            UpdateQuestStep(0);
             
             Debug.Log("LaundryBasket: Меню открыто!");
         }
@@ -125,12 +138,17 @@ public class LaundryBasket : MonoBehaviour, IInteractable
     void UpdateQuestStep(int stepIndex)
     {
         QuestSystem questSystem = QuestSystem.Instance;
-        if (questSystem != null && questSystem.activeQuests.Count > 0)
+        if (questSystem != null)
         {
-            Quest quest = questSystem.activeQuests[0]; // Первый квест - стирка
-            if (quest != null)
+            // Ищем квест стирки
+            foreach (Quest quest in questSystem.activeQuests)
             {
-                quest.CompleteStep(stepIndex);
+                if (quest != null && quest.questName == "Faire la lessive")
+                {
+                    quest.CompleteStep(stepIndex);
+                    Debug.Log($"LaundryBasket: Шаг {stepIndex} квеста стирки выполнен!");
+                    return;
+                }
             }
         }
     }

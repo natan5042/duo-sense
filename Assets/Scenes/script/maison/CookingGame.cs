@@ -93,6 +93,66 @@ public class CookingGame : MonoBehaviour, IInteractable
             uiCamera = Camera.main;
             if (uiCamera == null) uiCamera = FindFirstObjectByType<Camera>();
         }
+        
+        // Автоматически находим или создаем AudioSource для звуков
+        if (sfxSource == null)
+        {
+            sfxSource = GetComponent<AudioSource>();
+            if (sfxSource == null)
+            {
+                // Ищем на дочерних объектах
+                AudioSource[] allSources = GetComponentsInChildren<AudioSource>(true);
+                if (allSources.Length > 0)
+                {
+                    sfxSource = allSources[0];
+                    Debug.Log($"CookingGame: Найден AudioSource на дочернем объекте: {sfxSource.gameObject.name}");
+                }
+                else
+                {
+                    // Создаем новый только если не нашли
+                    sfxSource = gameObject.AddComponent<AudioSource>();
+                    sfxSource.playOnAwake = false;
+                    sfxSource.spatialBlend = 0f; // 2D звук
+                    Debug.Log("CookingGame: Создан новый sfxSource");
+                }
+            }
+        }
+        
+        // Убеждаемся что AudioSource включен и настроен правильно
+        if (sfxSource != null)
+        {
+            sfxSource.enabled = true;
+            if (sfxSource.volume == 0f)
+            {
+                sfxSource.volume = 1f; // Устанавливаем громкость только если она 0
+            }
+            sfxSource.mute = false;
+            Debug.Log($"CookingGame: sfxSource настроен. enabled: {sfxSource.enabled}, volume: {sfxSource.volume}");
+        }
+        
+        if (musicSource == null)
+        {
+            // Ищем AudioSource на дочерних объектах
+            AudioSource[] sources = GetComponentsInChildren<AudioSource>(true);
+            foreach (var source in sources)
+            {
+                if (source != sfxSource)
+                {
+                    musicSource = source;
+                    break;
+                }
+            }
+        }
+        
+        if (musicSource != null)
+        {
+            musicSource.enabled = true;
+            if (musicSource.volume == 0f)
+            {
+                musicSource.volume = 1f;
+            }
+            musicSource.mute = false;
+        }
     }
     
     void Update()
@@ -146,11 +206,6 @@ public class CookingGame : MonoBehaviour, IInteractable
             {
                 WomanHit();
             }
-            else
-            {
-                // Нажала не вовремя
-                WomanMiss();
-            }
         }
         
         // Визуальный пульс индикатора ритма
@@ -174,9 +229,62 @@ public class CookingGame : MonoBehaviour, IInteractable
         womanPressWindow = hitWindow;
         
         // Проигрываем звук ритма
-        if (sfxSource != null && rhythmBeatSound != null)
+        if (rhythmBeatSound == null)
+        {
+            Debug.LogWarning("CookingGame: rhythmBeatSound не назначен в Inspector!");
+            return;
+        }
+        
+        if (sfxSource == null)
+        {
+            Debug.LogWarning("CookingGame: sfxSource не назначен! Пытаюсь найти...");
+            sfxSource = GetComponent<AudioSource>();
+            if (sfxSource == null)
+            {
+                AudioSource[] sources = GetComponentsInChildren<AudioSource>(true);
+                if (sources.Length > 0) sfxSource = sources[0];
+            }
+        }
+        
+        if (sfxSource == null)
+        {
+            Debug.LogError("CookingGame: sfxSource == null! Не могу воспроизвести звук.");
+            return;
+        }
+        
+        // Убеждаемся что AudioSource активен и настроен
+        if (!sfxSource.enabled)
+        {
+            Debug.LogWarning("CookingGame: sfxSource выключен! Включаю...");
+            sfxSource.enabled = true;
+        }
+        
+        if (sfxSource.volume <= 0f)
+        {
+            Debug.LogWarning("CookingGame: sfxSource.volume = 0! Устанавливаю 1...");
+            sfxSource.volume = 1f;
+        }
+        
+        if (sfxSource.mute)
+        {
+            Debug.LogWarning("CookingGame: sfxSource.mute = true! Выключаю...");
+            sfxSource.mute = false;
+        }
+        
+        // Проверяем что GameObject активен
+        if (!sfxSource.gameObject.activeInHierarchy)
+        {
+            Debug.LogWarning($"CookingGame: GameObject с sfxSource неактивен! {sfxSource.gameObject.name}");
+        }
+        
+        try
         {
             sfxSource.PlayOneShot(rhythmBeatSound);
+            Debug.Log($"CookingGame: ✓ Звук ритма воспроизведен: {rhythmBeatSound.name}, Volume: {sfxSource.volume}, Enabled: {sfxSource.enabled}, Mute: {sfxSource.mute}");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"CookingGame: Ошибка воспроизведения звука: {e.Message}");
         }
         
         // Визуальный эффект
@@ -274,6 +382,7 @@ public class CookingGame : MonoBehaviour, IInteractable
                         {
                             zoneImage.color = hitZoneNormalColor;
                         }
+                        continue;
                     }
                     
                     // Удаляем ноту если ушла за экран
@@ -394,6 +503,14 @@ public class CookingGame : MonoBehaviour, IInteractable
         activeNotes.RemoveAt(index);
     }
     
+    IEnumerator UpdateHeartsAfterCanvasActivation()
+    {
+        // Ждем один кадр чтобы Canvas точно активировался
+        yield return null;
+        UpdateWomanHearts();
+        UpdateManHearts();
+    }
+    
     void UpdateWomanHearts()
     {
         if (womanHearts == null || womanHearts.Length == 0)
@@ -412,15 +529,42 @@ public class CookingGame : MonoBehaviour, IInteractable
         {
             if (womanHearts[i] != null)
             {
-                Sprite targetSprite = (i < womanLives) ? heartFull : heartEmpty;
-                if (womanHearts[i].sprite != targetSprite)
+                // Убеждаемся что Image активен
+                if (!womanHearts[i].gameObject.activeInHierarchy)
                 {
-                    womanHearts[i].sprite = targetSprite;
-                    // Принудительно обновляем через Canvas
-                    Canvas.ForceUpdateCanvases();
+                    womanHearts[i].gameObject.SetActive(true);
                 }
+                
+                if (!womanHearts[i].enabled)
+                {
+                    womanHearts[i].enabled = true;
+                }
+                
+                // Определяем какой спрайт использовать
+                bool shouldBeFull = i < womanLives;
+                Sprite targetSprite = shouldBeFull ? heartFull : heartEmpty;
+                
+                // Обновляем спрайт (всегда, не только если изменился)
+                womanHearts[i].sprite = targetSprite;
+                
+                // Принудительно обновляем Image
+                womanHearts[i].SetNativeSize();
+                womanHearts[i].SetAllDirty();
+                
+                // Уменьшаем размер в 2.5 раза
+                RectTransform heartRect = womanHearts[i].GetComponent<RectTransform>();
+                if (heartRect != null)
+                {
+                    heartRect.localScale = Vector3.one * (1f / 2.5f); // 0.4 = 1/2.5
+                }
+                
+                // Устанавливаем цвет (полное = белый, пустое = полупрозрачное)
+                womanHearts[i].color = shouldBeFull ? Color.white : new Color(1f, 1f, 1f, 0.3f);
             }
         }
+        
+        // Принудительно обновляем Canvas
+        Canvas.ForceUpdateCanvases();
     }
     
     void UpdateManHearts()
@@ -441,15 +585,42 @@ public class CookingGame : MonoBehaviour, IInteractable
         {
             if (manHearts[i] != null)
             {
-                Sprite targetSprite = (i < manLives) ? heartFull : heartEmpty;
-                if (manHearts[i].sprite != targetSprite)
+                // Убеждаемся что Image активен
+                if (!manHearts[i].gameObject.activeInHierarchy)
                 {
-                    manHearts[i].sprite = targetSprite;
-                    // Принудительно обновляем через Canvas
-                    Canvas.ForceUpdateCanvases();
+                    manHearts[i].gameObject.SetActive(true);
                 }
+                
+                if (!manHearts[i].enabled)
+                {
+                    manHearts[i].enabled = true;
+                }
+                
+                // Определяем какой спрайт использовать
+                bool shouldBeFull = i < manLives;
+                Sprite targetSprite = shouldBeFull ? heartFull : heartEmpty;
+                
+                // Обновляем спрайт
+                manHearts[i].sprite = targetSprite;
+                
+                // Принудительно обновляем Image
+                manHearts[i].SetNativeSize();
+                manHearts[i].SetAllDirty();
+                
+                // Уменьшаем размер в 2.5 раза
+                RectTransform heartRect = manHearts[i].GetComponent<RectTransform>();
+                if (heartRect != null)
+                {
+                    heartRect.localScale = Vector3.one * (1f / 2.5f); // 0.4 = 1/2.5
+                }
+                
+                // Устанавливаем цвет (полное = белый, пустое = полупрозрачное)
+                manHearts[i].color = shouldBeFull ? Color.white : new Color(1f, 1f, 1f, 0.3f);
             }
         }
+        
+        // Принудительно обновляем Canvas
+        Canvas.ForceUpdateCanvases();
     }
     
     void SetWomanFeedback(string text, Color color)
@@ -510,6 +681,12 @@ public class CookingGame : MonoBehaviour, IInteractable
         manHits = 0;
         canWomanPress = false;
         
+        // Обновляем сердечки при старте игры
+        UpdateWomanHearts();
+        UpdateManHearts();
+        
+        Debug.Log($"CookingGame: Игра начата. Жизни: женщина={womanLives}, мужчина={manLives}");
+        
         // Очищаем ноты
         foreach (var note in activeNotes)
         {
@@ -526,9 +703,8 @@ public class CookingGame : MonoBehaviour, IInteractable
             cookingCanvas.SetActive(true);
         }
         
-        // Обновляем сердечки после активации Canvas
-        UpdateWomanHearts();
-        UpdateManHearts();
+        // Обновляем сердечки после активации Canvas (с небольшой задержкой для гарантии)
+        StartCoroutine(UpdateHeartsAfterCanvasActivation());
         
         // Принудительно обновляем Canvas
         Canvas.ForceUpdateCanvases();
@@ -544,6 +720,21 @@ public class CookingGame : MonoBehaviour, IInteractable
         if (musicSource != null)
         {
             musicSource.Play();
+            Debug.Log("CookingGame: Музыка запущена");
+        }
+        else
+        {
+            Debug.LogWarning("CookingGame: musicSource не назначен! Музыка не будет играть.");
+        }
+        
+        // Проверяем что звуки настроены
+        if (sfxSource == null)
+        {
+            Debug.LogError("CookingGame: sfxSource не назначен! Звуки не будут работать.");
+        }
+        else if (rhythmBeatSound == null)
+        {
+            Debug.LogWarning("CookingGame: rhythmBeatSound не назначен в Inspector! Звук ритма не будет играть.");
         }
     }
     
@@ -638,25 +829,45 @@ public class CookingGame : MonoBehaviour, IInteractable
     void CompleteCookingQuestStep()
     {
         QuestSystem questSystem = QuestSystem.Instance;
-        if (questSystem != null)
+        if (questSystem == null)
         {
-            // Ищем квест готовки
-            foreach (Quest quest in questSystem.activeQuests)
+            Debug.LogWarning("CookingGame: QuestSystem.Instance == null! Квест не может быть завершен.");
+            return;
+        }
+        
+        // Ищем квест готовки
+        Quest foundQuest = null;
+        foreach (Quest quest in questSystem.activeQuests)
+        {
+            if (quest != null && quest.questName == "Préparer des œufs au plat")
             {
-                if (quest.questName == "Cuisine" && quest.steps.Count > 1)
-                {
-                    quest.CompleteStep(1);
-                    Debug.Log("CookingGame: Шаг 2 квеста готовки выполнен!");
-                    
-                    // Если весь квест выполнен, удаляем его
-                    if (quest.IsCompleted())
-                    {
-                        questSystem.CompleteQuest(quest);
-                        Debug.Log("CookingGame: Квест готовки полностью выполнен!");
-                    }
-                    break;
-                }
+                foundQuest = quest;
+                break;
             }
+        }
+        
+        if (foundQuest == null)
+        {
+            Debug.LogWarning("CookingGame: Квест 'Préparer des œufs au plat' не найден в активных квестах!");
+            return;
+        }
+        
+        // Проверяем что есть второй шаг
+        if (foundQuest.steps.Count <= 1)
+        {
+            Debug.LogWarning($"CookingGame: У квеста только {foundQuest.steps.Count} шаг(ов), не могу завершить шаг 1!");
+            return;
+        }
+        
+        // Завершаем второй шаг (индекс 1)
+        foundQuest.CompleteStep(1);
+        Debug.Log("CookingGame: ✓ Шаг 2 квеста готовки выполнен!");
+        
+        // Если весь квест выполнен, удаляем его
+        if (foundQuest.IsCompleted())
+        {
+            questSystem.CompleteQuest(foundQuest);
+            Debug.Log("CookingGame: ✓✓✓ Квест готовки полностью выполнен и удален из системы!");
         }
     }
 }

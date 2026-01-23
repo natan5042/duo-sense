@@ -4,10 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using GameQuests;
 
-/// <summary>
-/// Игра с полкой - женщина управляет рукой через WASD,
-/// мужик подсказывает какой продукт взять
-/// </summary>
+
 public class ShelfGame : MonoBehaviour, IInteractable
 {
     [Header("UI Панель")]
@@ -41,7 +38,7 @@ public class ShelfGame : MonoBehaviour, IInteractable
     public float handBoundsMargin = 50f; // Отступ от краёв панели
     
     [Header("Префаб продукта (ОПЦИОНАЛЬНО)")]
-    [Tooltip("Если не назначен - продукт не будет визуально появляться в мире, но квест все равно будет работать")]
+    [Tooltip("⚠ ВАЖНО: Это объект который появляется в мире после выбора правильного продукта на полке! Чтобы изменить объект - назначьте другой префаб здесь.")]
     public GameObject productPrefab; // Префаб для спавна продукта в мире (опционально)
     [Tooltip("Точка спавна продукта. Если не назначена - спавнится на позиции объекта полки")]
     public Transform productSpawnPoint; // Точка спавна продукта (опционально)
@@ -61,6 +58,19 @@ public class ShelfGame : MonoBehaviour, IInteractable
         {
             uiCamera = Camera.main;
             if (uiCamera == null) uiCamera = FindFirstObjectByType<Camera>();
+        }
+        
+        // Автоматически находим или создаем AudioSource для звуков
+        if (audioSource == null)
+        {
+            audioSource = GetComponent<AudioSource>();
+            if (audioSource == null)
+            {
+                audioSource = gameObject.AddComponent<AudioSource>();
+                audioSource.playOnAwake = false;
+                audioSource.spatialBlend = 0f; // 2D звук
+                Debug.Log("ShelfGame: AudioSource создан автоматически");
+            }
         }
         
         // Устанавливаем фон
@@ -151,14 +161,32 @@ public class ShelfGame : MonoBehaviour, IInteractable
     void InitializeCookingQuest()
     {
         QuestSystem questSystem = QuestSystem.Instance;
-        if (questSystem != null && cookingQuest == null)
+        if (questSystem == null)
         {
-            cookingQuest = new Quest("Cuisine");
-            cookingQuest.AddStep("Trouve le bon produit sur l'étagère", "Iris");
-            cookingQuest.AddStep("Cuisine avec Achille à la cuisinière", "Iris et Achille");
+            Debug.LogWarning("ShelfGame: QuestSystem.Instance == null! Квест не может быть создан. Убедитесь что в сцене есть объект с компонентом QuestSystem.");
+            return;
+        }
+        
+        // Проверяем, не создан ли уже квест готовки
+        foreach (Quest q in questSystem.activeQuests)
+        {
+            if (q != null && q.questName == "Préparer des œufs au plat")
+            {
+                cookingQuest = q;
+                Debug.Log("ShelfGame: Квест готовки уже существует, используем существующий");
+                return;
+            }
+        }
+        
+        // Создаем новый квест только если его нет
+        if (cookingQuest == null)
+        {
+            cookingQuest = new Quest("Préparer des œufs au plat");
+            cookingQuest.AddStep("Prendre un œuf", "Iris");
+            cookingQuest.AddStep("Faire cuire à la cuisinière à deux", "Iris et Achille");
             
             questSystem.AddQuest(cookingQuest);
-            Debug.Log("ShelfGame: Квест готовки создан");
+            Debug.Log("ShelfGame: Квест готовки создан и добавлен в систему");
         }
     }
     
@@ -254,9 +282,30 @@ public class ShelfGame : MonoBehaviour, IInteractable
             RectTransform productRect = products[i].productImage.GetComponent<RectTransform>();
             if (productRect == null) continue;
             
-            // Простое расстояние между позициями
-            Vector2 productLocalPos = productRect.anchoredPosition;
-            float distance = Vector2.Distance(handLocalPos, productLocalPos);
+            // Проверяем, что оба RectTransform находятся в одном пространстве
+            // Если они в разных родителях, используем мировые позиции
+            RectTransform handParent = handRect.parent as RectTransform;
+            RectTransform productParent = productRect.parent as RectTransform;
+            
+            Vector2 handPos, productPos;
+            
+            if (handParent == productParent)
+            {
+                // Одинаковые родители - используем anchoredPosition
+                handPos = handRect.anchoredPosition;
+                productPos = productRect.anchoredPosition;
+            }
+            else
+            {
+                // Разные родители - используем мировые позиции
+                Vector3 handWorld = handRect.position;
+                Vector3 productWorld = productRect.position;
+                handPos = new Vector2(handWorld.x, handWorld.y);
+                productPos = new Vector2(productWorld.x, productWorld.y);
+            }
+            
+            // Вычисляем расстояние
+            float distance = Vector2.Distance(handPos, productPos);
             
             // ОГРОМНЫЙ радиус - минимум 300 пикселей, или 200% от размера продукта
             Vector2 productSize = productRect.sizeDelta;
@@ -285,14 +334,18 @@ public class ShelfGame : MonoBehaviour, IInteractable
                     RectTransform productRect = products[nearestIndex].productImage.GetComponent<RectTransform>();
                     RectTransform frameRect = highlightFrame.GetComponent<RectTransform>();
                     
-                    frameRect.anchoredPosition = productRect.anchoredPosition;
-                    frameRect.sizeDelta = productRect.sizeDelta;
+                    if (productRect != null && frameRect != null)
+                    {
+                        frameRect.anchoredPosition = productRect.anchoredPosition;
+                        frameRect.sizeDelta = productRect.sizeDelta;
+                    }
                     
                     Debug.Log($"ShelfGame: Подсвечен продукт {nearestIndex}: {products[nearestIndex].productType}, Required: {requiredProduct}");
                 }
                 else
                 {
                     highlightFrame.gameObject.SetActive(false);
+                    Debug.Log($"ShelfGame: currentHighlightIndex: {currentHighlightIndex}");
                 }
             }
         }
@@ -300,13 +353,73 @@ public class ShelfGame : MonoBehaviour, IInteractable
     
     void TryPickProduct()
     {
-        // ПРОСТАЯ ЛОГИКА: используем currentHighlightIndex
+        // Используем currentHighlightIndex, но если он -1, ищем ближайший продукт
         int selectedIndex = currentHighlightIndex;
         
         Debug.Log($"\n========== TryPickProduct ==========");
         Debug.Log($"currentHighlightIndex: {selectedIndex}");
         Debug.Log($"products.Count: {products.Count}");
         Debug.Log($"requiredProduct: {requiredProduct} ({(int)requiredProduct})");
+        
+        // Если продукт не выбран, пытаемся найти ближайший
+        if (selectedIndex < 0 || selectedIndex >= products.Count)
+        {
+            if (handRect != null)
+            {
+                // Ищем ближайший продукт к руке (используем ту же логику, что и в UpdateHighlight)
+                Vector2 handLocalPos = handRect.anchoredPosition;
+                float nearestDistance = float.MaxValue;
+                int nearestIndex = -1;
+                
+                for (int i = 0; i < products.Count; i++)
+                {
+                    if (products[i].productImage == null) continue;
+                    
+                    RectTransform productRect = products[i].productImage.GetComponent<RectTransform>();
+                    if (productRect == null) continue;
+                    
+                    // Используем ту же логику расчета позиций, что и в UpdateHighlight
+                    RectTransform handParent = handRect.parent as RectTransform;
+                    RectTransform productParent = productRect.parent as RectTransform;
+                    
+                    Vector2 handPos, productPos;
+                    
+                    if (handParent == productParent)
+                    {
+                        handPos = handRect.anchoredPosition;
+                        productPos = productRect.anchoredPosition;
+                    }
+                    else
+                    {
+                        Vector3 handWorld = handRect.position;
+                        Vector3 productWorld = productRect.position;
+                        handPos = new Vector2(handWorld.x, handWorld.y);
+                        productPos = new Vector2(productWorld.x, productWorld.y);
+                    }
+                    
+                    float distance = Vector2.Distance(handPos, productPos);
+                    
+                    // Используем увеличенный радиус для выбора
+                    Vector2 productSize = productRect.sizeDelta;
+                    float minRadius = 300f;
+                    float sizeBasedRadius = Mathf.Max(productSize.x, productSize.y) * 2.0f;
+                    float effectiveRadius = Mathf.Max(products[i].selectionRadius, minRadius, sizeBasedRadius);
+                    
+                    if (distance < effectiveRadius && distance < nearestDistance)
+                    {
+                        nearestDistance = distance;
+                        nearestIndex = i;
+                    }
+                }
+                
+                if (nearestIndex >= 0)
+                {
+                    selectedIndex = nearestIndex;
+                    currentHighlightIndex = nearestIndex; // Обновляем для подсветки
+                    Debug.Log($"ShelfGame: Найден ближайший продукт по индексу {selectedIndex}");
+                }
+            }
+        }
         
         // Выводим ВСЕ продукты для отладки
         Debug.Log($"--- ВСЕ ПРОДУКТЫ В СПИСКЕ ---");
@@ -365,6 +478,24 @@ public class ShelfGame : MonoBehaviour, IInteractable
                 cookingQuest.CompleteStep(0);
                 Debug.Log("ShelfGame: Шаг 1 квеста готовки выполнен!");
             }
+            else
+            {
+                // Пытаемся найти квест в системе если он не был сохранен
+                QuestSystem questSystem = QuestSystem.Instance;
+                if (questSystem != null)
+                {
+                    foreach (Quest q in questSystem.activeQuests)
+                    {
+                        if (q != null && q.questName == "Préparer des œufs au plat")
+                        {
+                            cookingQuest = q;
+                            cookingQuest.CompleteStep(0);
+                            Debug.Log("ShelfGame: Квест найден в системе, шаг 1 выполнен!");
+                            break;
+                        }
+                    }
+                }
+            }
             
             // Закрываем панель с задержкой
             StartCoroutine(CloseAfterDelay(1.5f));
@@ -411,13 +542,38 @@ public class ShelfGame : MonoBehaviour, IInteractable
             sr.sprite = product.productSprite;
         }
         
-        // Добавляем женщине предмет
+        // Добавляем женщине предмет через систему PickableItem
         PlayerInteraction player = FindPlayerByType(PlayerType.Normal);
         if (player != null)
         {
-            // Привязываем к игроку (можно настроить как в стирке)
-            spawned.transform.SetParent(player.transform);
-            spawned.transform.localPosition = new Vector3(0.5f, 0.5f, 0);
+            // Проверяем, есть ли компонент PickableItem
+            PickableItem pickableItem = spawned.GetComponent<PickableItem>();
+            if (pickableItem == null)
+            {
+                pickableItem = spawned.GetComponentInChildren<PickableItem>();
+            }
+            
+            if (pickableItem != null)
+            {
+                // Используем систему PickableItem с attachPoint
+                // Если у игрока есть holdPoint, используем его, иначе используем transform игрока
+                Transform holder = player.holdPoint != null ? player.holdPoint : player.transform;
+                
+                // Вызываем OnPicked для правильной настройки точки удержания
+                pickableItem.OnPicked(holder, true);
+                
+                Debug.Log($"ShelfGame: Продукт добавлен через PickableItem. Holder: {holder.name}, AttachPoint: {(pickableItem.attachPoint != null ? pickableItem.attachPoint.name : "null")}");
+            }
+            else
+            {
+                // Fallback: если нет PickableItem, используем старый способ
+                Transform holder = player.holdPoint != null ? player.holdPoint : player.transform;
+                spawned.transform.SetParent(holder);
+                spawned.transform.localPosition = Vector3.zero;
+                spawned.transform.localRotation = Quaternion.identity;
+                
+                Debug.LogWarning("ShelfGame: У префаба продукта нет компонента PickableItem! Используется старый способ привязки.");
+            }
         }
     }
     
@@ -895,9 +1051,33 @@ public class ShelfGame : MonoBehaviour, IInteractable
     
     void PlaySound(AudioClip clip)
     {
-        if (audioSource != null && clip != null)
+        if (clip == null)
+        {
+            Debug.LogWarning("ShelfGame: Попытка воспроизвести звук, но clip = null");
+            return;
+        }
+        
+        // Если audioSource не назначен, пытаемся найти или создать
+        if (audioSource == null)
+        {
+            audioSource = GetComponent<AudioSource>();
+            if (audioSource == null)
+            {
+                audioSource = gameObject.AddComponent<AudioSource>();
+                audioSource.playOnAwake = false;
+                audioSource.spatialBlend = 0f; // 2D звук
+                Debug.Log("ShelfGame: AudioSource создан автоматически в PlaySound");
+            }
+        }
+        
+        if (audioSource != null)
         {
             audioSource.PlayOneShot(clip);
+            Debug.Log($"ShelfGame: Воспроизводится звук: {clip.name}");
+        }
+        else
+        {
+            Debug.LogError("ShelfGame: Не удалось создать AudioSource! Звук не будет воспроизведен.");
         }
     }
     

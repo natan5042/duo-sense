@@ -133,12 +133,17 @@ public class WashingMachine : MonoBehaviour, IInteractable
     void UpdateQuestStep(int stepIndex)
     {
         QuestSystem questSystem = QuestSystem.Instance;
-        if (questSystem != null && questSystem.activeQuests.Count > 0)
+        if (questSystem != null)
         {
-            Quest quest = questSystem.activeQuests[0]; // Первый квест - стирка
-            if (quest != null)
+            // Ищем квест стирки
+            foreach (Quest quest in questSystem.activeQuests)
             {
-                quest.CompleteStep(stepIndex);
+                if (quest != null && quest.questName == "Faire la lessive")
+                {
+                    quest.CompleteStep(stepIndex);
+                    Debug.Log($"WashingMachine: Шаг {stepIndex} квеста стирки выполнен!");
+                    return;
+                }
             }
         }
     }

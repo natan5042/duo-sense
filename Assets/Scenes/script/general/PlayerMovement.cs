@@ -68,9 +68,21 @@ public class PlayerMovement : MonoBehaviour
     private bool isClimbing = false;
     private float defaultGravity;
 
-    void OnTriggerEnter2D(Collider2D other)
+    void OnTriggerEnter2D(Collider2D collider)
     {
-        if (other.CompareTag("Ladder"))
+        // КРИТИЧЕСКИ ВАЖНО: НЕ используем CompareTag("Ladder") - тег не существует!
+        // Используем только проверку Layer через битовую маску
+        if (collider == null || collider.gameObject == null) return;
+        if (ladderLayer == 0) return;
+        
+        GameObject triggerObject = collider.gameObject;
+        int triggerLayer = triggerObject.layer;
+        
+        // Проверяем, находится ли объект на нужном слое
+        int layerMaskValue = 1 << triggerLayer;
+        bool matchesLadderLayer = (layerMaskValue & ladderLayer) != 0;
+        
+        if (matchesLadderLayer)
         {
             isInLadderZone = true;
         }
@@ -119,6 +131,12 @@ public class PlayerMovement : MonoBehaviour
         playerColliders = GetComponentsInChildren<Collider2D>();
         playerMainBox = GetComponentInChildren<BoxCollider2D>();
 
+        // Инициализируем гравитацию для лестницы
+        if (rb != null)
+        {
+            defaultGravity = rb.gravityScale;
+        }
+
         // Si on contrôle le sprite manuellement, éviter les conflits avec l'Animator
         if (controlSpriteManually && animator != null)
         {
@@ -128,6 +146,13 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
+        // Блокируем движение если активна мини-игра с полкой
+        if (ShelfGame.IsShelfGameActive)
+        {
+            movement.x = 0f;
+            return;
+        }
+        
 			  // Лестница: включается ТОЛЬКО при нажатии W
         if (isInLadderZone && Input.GetKey(KeyCode.W))
         {
@@ -312,6 +337,15 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
+        // Блокируем движение если активна мини-игра с полкой
+        if (ShelfGame.IsShelfGameActive)
+        {
+            if (rb != null)
+            {
+                rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+            }
+            return;
+        }
 		
 		if (isClimbing)
             {
