@@ -53,10 +53,10 @@ public class CookingGame : MonoBehaviour, IInteractable
     
     [Header("Настройки игры")]
     public float gameDuration = 30f; // Длительность игры в секундах
-    public float beatInterval = 1f; // Интервал между битами ритма
+    public float beatInterval = 2f; // Интервал между битами ритма (увеличено для более медленной игры)
     public float noteSpeed = 200f; // Скорость падения нот
     public float noteSpawnInterval = 1.5f; // Интервал между нотами
-    public float hitWindow = 0.3f; // Окно для попадания (в секундах)
+    public float hitWindow = 1.2f; // Окно для попадания (увеличено - зеленая панелька будет светиться дольше)
     public int requiredSuccessfulHits = 10; // Сколько попаданий нужно для победы
     
     [Header("Визуальные эффекты")]

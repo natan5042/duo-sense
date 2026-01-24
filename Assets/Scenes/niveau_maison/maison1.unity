@@ -27361,11 +27361,11 @@ MonoBehaviour:
   missSound: {fileID: 0}
   successSound: {fileID: 0}
   failSound: {fileID: 0}
-  gameDuration: 20
-  beatInterval: 1
+  gameDuration: 10
+  beatInterval: 2
   noteSpeed: 200
   noteSpawnInterval: 1.5
-  hitWindow: 0.5
+  hitWindow: 1
   requiredSuccessfulHits: 10
   hitZoneNormalColor: {r: 1, g: 1, b: 1, a: 0.3}
   hitZoneActiveColor: {r: 0, g: 1, b: 0, a: 0.6}
