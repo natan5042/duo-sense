@@ -1,5 +1,6 @@
-using System.Collections.Generic;
 using UnityEngine;
+using System;
+using System.Collections.Generic;
 
 // À attacher sur le joueur (ou n'importe quel agent ramasseur)
 public class ItemPickup : MonoBehaviour
@@ -15,21 +16,14 @@ public class ItemPickup : MonoBehaviour
     [Header("UI/Feedback (optionnel)")] 
     public bool showGizmo = true;
 
-    [Header("Mode Inventaire")] 
-    [Tooltip("Si vrai, on collecte directement dans l'inventaire au lieu de tenir l'objet en main.")]
-    public bool collectToInventory = true;
-    [Tooltip("Si vrai, l'objet est simplement désactivé dans la scène après collecte (il n'est pas détruit)." )]
-    public bool hideCollectedObject = true;
-
-    [Header("Collecte")]
-    [Tooltip("Historique simple des identifiants ramassés. Peut être utilisé par un inventaire plus tard." )]
-    public List<string> collectedItemIds = new List<string>();
-
-    public IReadOnlyList<string> CollectedItems => collectedItemIds; // accès en lecture seule pour l'extérieur
-
-    public System.Action<PickableItem> onItemCollected;
-
     PickableItem heldItem;
+    
+    // Événement déclenché quand un objet est collecté (pour QuestObjectUnlock)
+    public event Action<PickableItem> onItemCollected;
+    
+    // Liste des IDs des objets collectés
+    private List<string> collectedItems = new List<string>();
+    public List<string> CollectedItems => collectedItems;
 
     void Update()
     {
@@ -74,28 +68,17 @@ public class ItemPickup : MonoBehaviour
             if (item != null)
             {
                 Transform holder = handPoint != null ? handPoint : transform;
-                bool attachToHolder = !collectToInventory; // si inventaire, on ne l'attache pas à la main
-
-                item.OnPicked(holder, attachToHolder);
-
-                // Stocke ce qui a été ramassé pour un futur inventaire/quête
-                collectedItemIds.Add(item.itemId);
+                item.OnPicked(holder);
+                heldItem = item;
+                
+                // Ajoute l'itemId à la liste des objets collectés
+                if (!string.IsNullOrEmpty(item.itemId))
+                {
+                    collectedItems.Add(item.itemId);
+                }
+                
+                // Déclenche l'événement de collecte
                 onItemCollected?.Invoke(item);
-
-                if (collectToInventory)
-                {
-                    // On ne garde rien en main, on range dans le "sac"
-                    heldItem = null;
-                    if (hideCollectedObject)
-                    {
-                        item.gameObject.SetActive(false); // l'objet disparaît de la scène mais reste en mémoire
-                    }
-                }
-                else
-                {
-                    // Comportement précédent: porter l'objet
-                    heldItem = item;
-                }
             }
         }
     }
