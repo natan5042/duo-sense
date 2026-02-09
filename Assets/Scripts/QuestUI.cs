@@ -176,19 +176,37 @@ public class QuestUI : MonoBehaviour
             Debug.LogError("QuestUI: Text компонент не найден! Квесты не будут отображаться.");
         }
         
-        // Проверяем QuestSystem
+        // Проверяем QuestSystem — если нет, создаём автоматически (pour les scènes sans hub)
         if (QuestSystem.Instance == null)
         {
-            Debug.LogWarning("QuestUI: QuestSystem.Instance == null! Создайте объект с компонентом QuestSystem в сцене или используйте Tools > Quest System > Create Quest Panel");
+            GameObject go = new GameObject("QuestSystem");
+            go.AddComponent<QuestSystem>();
+            Debug.Log("QuestUI: QuestSystem créé automatiquement.");
         }
-        else
+        if (QuestSystem.Instance != null)
         {
-            Debug.Log($"QuestUI: QuestSystem найден! Активных квестов: {QuestSystem.Instance.activeQuests.Count}");
-            // Подписываемся на изменения квестов
             QuestSystem.Instance.OnQuestsChanged += UpdateQuestDisplay;
         }
         
-        // Обновляем квесты сразу
+        // Панель квестов всегда видима par défaut
+        var questCanvas = GetComponent<Canvas>();
+        if (questCanvas == null) questCanvas = GetComponentInParent<Canvas>();
+        if (questCanvas != null)
+        {
+            questCanvas.enabled = true;
+            questCanvas.gameObject.SetActive(true);
+            if (questCanvas.transform.localScale.x == 0 || questCanvas.transform.localScale.y == 0)
+                questCanvas.transform.localScale = Vector3.one;
+        }
+        if (questPanel != null)
+        {
+            questPanel.SetActive(true);
+        }
+        if (questText != null && questText.gameObject != null)
+        {
+            questText.gameObject.SetActive(true);
+        }
+        
         UpdateQuestDisplay();
     }
     
@@ -226,24 +244,15 @@ public class QuestUI : MonoBehaviour
             return;
         }
         
+        // Панель всегда видима
+        if (questPanel != null && !questPanel.activeSelf) questPanel.SetActive(true);
+
         QuestSystem questSystem = QuestSystem.Instance;
-        if (questSystem == null)
+        if (questSystem == null || questSystem.activeQuests == null || questSystem.activeQuests.Count == 0)
         {
-            Debug.LogWarning("QuestUI: QuestSystem.Instance == null! Квесты не могут быть отображены.");
-            questText.text = "";
-            if (questPanel != null) questPanel.SetActive(false);
+            questText.text = "<b>Quêtes:</b>\n\nAucune quête pour le moment.";
             return;
         }
-        
-        if (questSystem.activeQuests == null || questSystem.activeQuests.Count == 0)
-        {
-            Debug.Log("QuestUI: Нет активных квестов для отображения.");
-            questText.text = "";
-            if (questPanel != null) questPanel.SetActive(false);
-            return;
-        }
-        
-        Debug.Log($"QuestUI: Обновляю отображение. Активных квестов: {questSystem.activeQuests.Count}");
         
         // Строим текст со всеми активными квестами
         StringBuilder sb = new StringBuilder();
@@ -261,14 +270,17 @@ public class QuestUI : MonoBehaviour
                 bool completed = i < quest.completedSteps.Count && quest.completedSteps[i];
                 string checkmark = completed ? "✓" : "○";
                 string stepText = quest.steps[i];
-                
-                // Добавляем имя персонажа если оно есть
+                if (quest.stepRequiredCounts != null && quest.stepCurrentCounts != null && i < quest.stepRequiredCounts.Count && quest.stepRequiredCounts[i] > 0)
+                {
+                    int cur = i < quest.stepCurrentCounts.Count ? quest.stepCurrentCounts[i] : 0;
+                    int req = quest.stepRequiredCounts[i];
+                    stepText = $"{stepText} ({cur}/{req})";
+                }
                 string assignedTo = "";
                 if (quest.stepAssignments != null && i < quest.stepAssignments.Count && !string.IsNullOrEmpty(quest.stepAssignments[i]))
                 {
                     assignedTo = $" <color=#88CCFF>({quest.stepAssignments[i]})</color>";
                 }
-                
                 if (completed)
                 {
                     sb.AppendLine($"  <color=green>{checkmark} {stepText}{assignedTo}</color>");
@@ -282,24 +294,9 @@ public class QuestUI : MonoBehaviour
             sb.AppendLine();
         }
         
-        string finalText = sb.ToString();
-        questText.text = finalText;
-        
-        Debug.Log($"QuestUI: Текст квестов установлен. Длина: {finalText.Length} символов");
-        Debug.Log($"QuestUI: Первые 200 символов: {finalText.Substring(0, Mathf.Min(200, finalText.Length))}");
-        
-        // Показываем панель если она скрыта
-        if (questPanel != null && !questPanel.activeSelf)
-        {
-            questPanel.SetActive(true);
-            Debug.Log("QuestUI: Панель активирована");
-        }
-        
+        questText.text = sb.ToString();
         if (questText.gameObject != null && !questText.gameObject.activeSelf)
-        {
             questText.gameObject.SetActive(true);
-            Debug.Log("QuestUI: Text GameObject активирован");
-        }
     }
     
     // Метод для принудительного обновления (можно вызывать извне)

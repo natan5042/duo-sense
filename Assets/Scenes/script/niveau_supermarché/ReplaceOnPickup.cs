@@ -25,6 +25,7 @@ public class ReplaceOnPickup : MonoBehaviour
     public bool useSecondSprite = false; // choisis le sprite voulu
 
     bool playerInTrigger;
+    Collider2D lastPlayerCollider;
 
     void Start()
     {
@@ -50,6 +51,7 @@ public class ReplaceOnPickup : MonoBehaviour
     void OnTriggerEnter2D(Collider2D other)
     {
         if (requirePlayerTag && !other.CompareTag(playerTag)) return;
+        lastPlayerCollider = other;
         playerInTrigger = true;
         if (autoPickupOnEnter) TriggerReplace();
     }
@@ -84,6 +86,15 @@ public class ReplaceOnPickup : MonoBehaviour
             newObj.transform.rotation = spawnPoint.rotation;
             var sr = newObj.AddComponent<SpriteRenderer>();
             sr.sprite = useSecondSprite ? spriteVariant2 : spriteVariant1;
+        }
+
+        // Notifier les quêtes (ItemPickup.onItemCollected) si cet objet a un PickableItem
+        var pickable = GetComponent<PickableItem>();
+        if (pickable != null && lastPlayerCollider != null)
+        {
+            var picker = lastPlayerCollider.GetComponentInParent<ItemPickup>();
+            if (picker != null)
+                picker.NotifyItemCollected(pickable);
         }
 
         // Cache cet objet d'origine

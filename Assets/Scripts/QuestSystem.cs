@@ -16,6 +16,9 @@ namespace GameQuests
         public List<string> steps = new List<string>();
         public List<bool> completedSteps = new List<bool>();
         public List<string> stepAssignments = new List<string>(); // Имена персонажей для каждого шага
+        /// <summary> Pour les étapes avec quantité (ex: LAIT x2). 0 = étape booléenne classique. </summary>
+        public List<int> stepRequiredCounts = new List<int>();
+        public List<int> stepCurrentCounts = new List<int>();
 
         public Quest(string title)
         {
@@ -26,7 +29,44 @@ namespace GameQuests
         {
             steps.Add(description);
             completedSteps.Add(false);
-            stepAssignments.Add(assignedTo); // Сохраняем имя персонажа
+            stepAssignments.Add(assignedTo);
+            stepRequiredCounts.Add(0);
+            stepCurrentCounts.Add(0);
+        }
+
+        /// <summary> Ajoute une étape avec quantité (ex: "LAIT", 2 pour LAIT x2). </summary>
+        public void AddStepWithCount(string description, int requiredCount, string assignedTo = "")
+        {
+            steps.Add(description);
+            completedSteps.Add(false);
+            stepAssignments.Add(assignedTo);
+            stepRequiredCounts.Add(requiredCount > 0 ? requiredCount : 1);
+            stepCurrentCounts.Add(0);
+        }
+
+        /// <summary> Incrémente le compteur d'une étape (ex: produit passé en caisse). Complète l'étape si atteint. </summary>
+        public void IncrementStepCount(int index, int amount = 1)
+        {
+            if (index < 0 || index >= steps.Count) return;
+            if (stepCurrentCounts == null || stepRequiredCounts == null || index >= stepCurrentCounts.Count || index >= stepRequiredCounts.Count) return;
+            stepCurrentCounts[index] = Mathf.Min(stepCurrentCounts[index] + amount, stepRequiredCounts[index] > 0 ? stepRequiredCounts[index] : int.MaxValue);
+            if (stepRequiredCounts[index] > 0 && stepCurrentCounts[index] >= stepRequiredCounts[index])
+            {
+                completedSteps[index] = true;
+                if (QuestSystem.Instance != null) QuestSystem.Instance.NotifyQuestsChanged();
+            }
+            if (QuestSystem.Instance != null) QuestSystem.Instance.NotifyQuestsChanged();
+        }
+
+        /// <summary> Texte d'affichage pour une étape (ex: "LAIT x2 (1/2)"). </summary>
+        public string GetStepDisplay(int index)
+        {
+            if (index < 0 || index >= steps.Count) return "";
+            int req = index < stepRequiredCounts.Count ? stepRequiredCounts[index] : 0;
+            int cur = index < stepCurrentCounts.Count ? stepCurrentCounts[index] : 0;
+            if (req > 0)
+                return $"{steps[index]} ({cur}/{req})";
+            return steps[index];
         }
 
         public void CompleteStep(int index)

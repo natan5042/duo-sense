@@ -18,6 +18,11 @@ public class ItemPickup : MonoBehaviour
 
     PickableItem heldItem;
     
+    /// <summary> Objet actuellement tenu (pour la caisse / quêtes). </summary>
+    public PickableItem HeldItem => heldItem;
+    /// <summary> ID de l'objet tenu, ou null si rien. </summary>
+    public string HeldItemId => heldItem != null ? heldItem.itemId : null;
+    
     // Événement déclenché quand un objet est collecté (pour QuestObjectUnlock)
     public event Action<PickableItem> onItemCollected;
     
@@ -83,11 +88,20 @@ public class ItemPickup : MonoBehaviour
         }
     }
 
-    void DropHeldItem()
+    public void DropHeldItem()
     {
         if (heldItem == null) return;
         heldItem.OnDropped();
         heldItem = null;
+    }
+
+    /// <summary> Appelé par ReplaceOnPickup (ou autre) quand un objet est "ramassé" sans passer par TryPickupNearest — déclenche onItemCollected. </summary>
+    public void NotifyItemCollected(PickableItem item)
+    {
+        if (item == null) return;
+        if (!string.IsNullOrEmpty(item.itemId))
+            collectedItems.Add(item.itemId);
+        onItemCollected?.Invoke(item);
     }
 
     void OnDrawGizmosSelected()

@@ -1,10 +1,13 @@
 using UnityEngine;
+using UnityEngine.Events;
 
-// Gère l'interaction avec l'affiche des niveaux
+// Gère l'interaction avec l'affiche des niveaux (ou liste de courses en supermarché)
 public class LevelDisplayInteraction : MonoBehaviour, IInteractable
 {
     [Header("Menu")]
     public Canvas menuCanvas;
+    [Tooltip("Appelé quand le menu est ouvert (pour ajouter la quête liste en supermarché)")]
+    public UnityEvent onMenuOpened;
     public float detectionDistance = 5f;
     public KeyCode interactKey = KeyCode.F; // Utilise F au lieu de E pour éviter le conflit avec ItemPickup
 
@@ -93,6 +96,7 @@ public class LevelDisplayInteraction : MonoBehaviour, IInteractable
         {
             menuCanvas.enabled = true;
             Time.timeScale = 0f; // Mettre le jeu en pause
+            onMenuOpened?.Invoke();
         }
     }
 
