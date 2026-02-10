@@ -54,10 +54,17 @@ public class LevelDisplayInteraction : MonoBehaviour, IInteractable
 
     void Update()
     {
-        // Vérifier si le joueur est près et appuie sur la touche d'interaction
-        if (isPlayerNear && Input.GetKeyDown(interactKey))
+        if (menuCanvas != null && menuCanvas.enabled)
         {
-            Debug.Log("Opening level menu!");
+            // Fermer avec la même touche (ex: flèche bas) que pour ouvrir
+            if (Input.GetKeyDown(interactKey))
+            {
+                CloseMenu();
+                return;
+            }
+        }
+        else if (isPlayerNear && Input.GetKeyDown(interactKey))
+        {
             OpenMenu();
         }
     }

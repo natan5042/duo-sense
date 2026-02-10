@@ -271,21 +271,14 @@ public class CookingGame : MonoBehaviour, IInteractable
             sfxSource.mute = false;
         }
         
-        // Проверяем что GameObject активен
-        if (!sfxSource.gameObject.activeInHierarchy)
+        // PlayClipAtPoint создаёт временный источник у камеры — звук гарантированно слышен при любом AudioListener
+        Vector3 listenPos = (Camera.main != null ? Camera.main.transform : (uiCamera != null ? uiCamera.transform : null))?.position ?? Vector3.zero;
+        if (listenPos == Vector3.zero)
         {
-            Debug.LogWarning($"CookingGame: GameObject с sfxSource неактивен! {sfxSource.gameObject.name}");
+            var cam = FindFirstObjectByType<Camera>();
+            if (cam != null) listenPos = cam.transform.position;
         }
-        
-        try
-        {
-            sfxSource.PlayOneShot(rhythmBeatSound);
-            Debug.Log($"CookingGame: ✓ Звук ритма воспроизведен: {rhythmBeatSound.name}, Volume: {sfxSource.volume}, Enabled: {sfxSource.enabled}, Mute: {sfxSource.mute}");
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"CookingGame: Ошибка воспроизведения звука: {e.Message}");
-        }
+        AudioSource.PlayClipAtPoint(rhythmBeatSound, listenPos, 1f);
         
         // Визуальный эффект
         if (rhythmIndicator != null)
@@ -652,15 +645,40 @@ public class CookingGame : MonoBehaviour, IInteractable
         }
     }
     
+    [Header("Produit en main (œuf)")]
+    [Tooltip("ItemId du PickableItem pour l'œuf. L'œuf disparaît quand la mini‑jeu est réussie.")]
+    public string eggItemId = "egg";
+
+    // Œuf pris en main : on le supprime seulement à la victoire
+    private ItemPickup playerWithEgg;
+    private GameObject eggToRemoveOnSuccess;
+
     public void Interact(PlayerInteraction player)
     {
-        // Проверяем, есть ли продукт
+        if (!CookingState.hasProduct && player != null)
+        {
+            var pickup = player.GetComponent<ItemPickup>();
+            if (pickup != null && pickup.HeldItem != null)
+            {
+                string id = pickup.HeldItem.itemId?.Trim().ToLowerInvariant();
+                string wanted = (eggItemId ?? "egg").Trim().ToLowerInvariant();
+                if (!string.IsNullOrEmpty(id) && id == wanted)
+                {
+                    CookingState.PickProduct(ProductType.Egg);
+                    eggToRemoveOnSuccess = pickup.HeldItem.gameObject;
+                    playerWithEgg = pickup;
+                    StartCooking();
+                    return;
+                }
+            }
+        }
+
         if (!CookingState.hasProduct)
         {
-            Debug.Log("CookingGame: Нужен продукт для готовки!");
+            Debug.Log("CookingGame: Нужен продукт для готовки (prenez un œuf sur l'étagère ou en main)!");
             return;
         }
-        
+
         StartCooking();
     }
     
@@ -769,6 +787,9 @@ public class CookingGame : MonoBehaviour, IInteractable
             
             // Используем продукт
             CookingState.DropProduct();
+
+            // Œuf en main : le faire disparaître (jeu réussi)
+            RemoveEggFromHands();
             
             // Завершаем второй шаг квеста готовки
             CompleteCookingQuestStep();
@@ -823,6 +844,59 @@ public class CookingGame : MonoBehaviour, IInteractable
         StartCooking();
     }
     
+    /// <summary>
+    /// Убирает яйцо из рук: и через PickableItem (itemId), и через ProductItem (productType Egg) от полки.
+    /// </summary>
+    void RemoveEggFromHands()
+    {
+        string wanted = (eggItemId ?? "egg").Trim().ToLowerInvariant();
+        if (!string.IsNullOrEmpty(wanted))
+        {
+            bool removed = false;
+            if (playerWithEgg != null && eggToRemoveOnSuccess != null && playerWithEgg.HeldItem != null && playerWithEgg.HeldItem.gameObject == eggToRemoveOnSuccess)
+            {
+                playerWithEgg.DropHeldItem();
+                Destroy(eggToRemoveOnSuccess);
+                removed = true;
+            }
+            playerWithEgg = null;
+            eggToRemoveOnSuccess = null;
+
+            if (!removed)
+            {
+                var allPickups = FindObjectsByType<ItemPickup>(FindObjectsSortMode.None);
+                foreach (var pickup in allPickups)
+                {
+                    if (pickup == null || pickup.HeldItem == null) continue;
+                    string id = pickup.HeldItem.itemId?.Trim().ToLowerInvariant();
+                    if (string.IsNullOrEmpty(id) || id != wanted) continue;
+                    var obj = pickup.HeldItem.gameObject;
+                    pickup.DropHeldItem();
+                    if (obj != null) Destroy(obj);
+                }
+            }
+        }
+
+        // Яйцо с полки (ShelfGame): ProductItem с productType Egg, дочерний объект holdPoint игрока
+        var players = FindObjectsByType<PlayerInteraction>(FindObjectsSortMode.None);
+        foreach (var p in players)
+        {
+            if (p == null) continue;
+            if (p.playerType != PlayerType.Normal) continue;
+            Transform point = p.holdPoint != null ? p.holdPoint : p.transform;
+            for (int i = point.childCount - 1; i >= 0; i--)
+            {
+                Transform child = point.GetChild(i);
+                var productItem = child.GetComponent<ProductItem>();
+                if (productItem != null && productItem.productType == ProductType.Egg)
+                {
+                    Destroy(child.gameObject);
+                    break;
+                }
+            }
+        }
+    }
+
     /// <summary>
     /// Завершает второй шаг квеста готовки
     /// </summary>

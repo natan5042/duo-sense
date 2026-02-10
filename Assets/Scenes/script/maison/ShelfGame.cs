@@ -34,7 +34,10 @@ public class ShelfGame : MonoBehaviour, IInteractable
     public AudioClip wrongSound; // Звук неправильного выбора
     
     [Header("Настройки")]
-    public bool onlyNormalPlayer = true; // Только женщина (Normal) может играть
+    [Tooltip("Только персонаж с типом Normal (Ирис) может открыть полку")]
+    public bool onlyNormalPlayer = true;
+    [Tooltip("Если задано, взаимодействовать может только объект, в имени которого есть эта строка (например Iris)")]
+    public string onlyPlayerNameContains = "Iris";
     public float handBoundsMargin = 50f; // Отступ от краёв панели
     
     [Header("Префаб продукта (ОПЦИОНАЛЬНО)")]
@@ -604,11 +607,25 @@ public class ShelfGame : MonoBehaviour, IInteractable
     
     public void Interact(PlayerInteraction player)
     {
-        // Проверяем тип игрока
+        if (player == null) return;
+
         if (onlyNormalPlayer && player.playerType != PlayerType.Normal)
         {
-            Debug.Log("ShelfGame: Только женщина может взаимодействовать с полкой!");
+            Debug.Log("ShelfGame: Только женщина (Iris) может взаимодействовать с полкой!");
             return;
+        }
+
+        if (!string.IsNullOrEmpty(onlyPlayerNameContains))
+        {
+            string goName = player.gameObject.name ?? "";
+            string rootName = player.transform.root != null ? player.transform.root.name : goName;
+            bool nameMatch = goName.IndexOf(onlyPlayerNameContains, System.StringComparison.OrdinalIgnoreCase) >= 0
+                || rootName.IndexOf(onlyPlayerNameContains, System.StringComparison.OrdinalIgnoreCase) >= 0;
+            if (!nameMatch)
+            {
+                Debug.Log("ShelfGame: Только Iris может взаимодействовать с полкой!");
+                return;
+            }
         }
         
         // Проверяем, нет ли уже продукта
