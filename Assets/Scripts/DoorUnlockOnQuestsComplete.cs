@@ -1,5 +1,6 @@
 using UnityEngine;
 using GameQuests;
+using System.Collections.Generic;
 
 /// <summary>
 /// Скрывает спрайт двери когда все квесты выполнены
@@ -22,6 +23,8 @@ public class DoorUnlockOnQuestsComplete : MonoBehaviour
     
     private bool doorHidden = false;
     private bool questsWereCreated = false; // Флаг что квесты были созданы
+    private List<Collider2D> disabledColliders2D = new List<Collider2D>();
+    private List<Collider> disabledColliders3D = new List<Collider>();
     
     void Start()
     {
@@ -124,12 +127,18 @@ public class DoorUnlockOnQuestsComplete : MonoBehaviour
             Debug.Log("DoorUnlockOnQuestsComplete: ✓ Все квесты выполнены! Скрываю дверь...");
         }
         
+        disabledColliders2D.Clear();
+        disabledColliders3D.Clear();
         if (hideSprite && doorSprite != null)
         {
+            GameObject target = doorSprite.gameObject;
             doorSprite.enabled = false;
+            DisableCollidersOn(target);
+            if (target != gameObject)
+                DisableCollidersOn(gameObject);
             if (debugLogs)
             {
-                Debug.Log($"DoorUnlockOnQuestsComplete: SpriteRenderer '{doorSprite.gameObject.name}' отключен.");
+                Debug.Log($"DoorUnlockOnQuestsComplete: SpriteRenderer '{target.name}' отключен, коллайдеры отключены.");
             }
         }
         else if (!hideSprite && doorObject != null)
@@ -140,6 +149,39 @@ public class DoorUnlockOnQuestsComplete : MonoBehaviour
                 Debug.Log($"DoorUnlockOnQuestsComplete: GameObject '{doorObject.name}' деактивирован.");
             }
         }
+    }
+
+    void DisableCollidersOn(GameObject go)
+    {
+        if (go == null) return;
+        var c2d = go.GetComponents<Collider2D>();
+        foreach (var c in c2d)
+        {
+            if (c != null && c.enabled)
+            {
+                c.enabled = false;
+                disabledColliders2D.Add(c);
+            }
+        }
+        var c3d = go.GetComponents<Collider>();
+        foreach (var c in c3d)
+        {
+            if (c != null && c.enabled)
+            {
+                c.enabled = false;
+                disabledColliders3D.Add(c);
+            }
+        }
+    }
+
+    void EnableCollidersBack()
+    {
+        foreach (var c in disabledColliders2D)
+            if (c != null) c.enabled = true;
+        foreach (var c in disabledColliders3D)
+            if (c != null) c.enabled = true;
+        disabledColliders2D.Clear();
+        disabledColliders3D.Clear();
     }
     
     // Метод для ручного скрытия двери (можно вызывать извне)
@@ -152,7 +194,7 @@ public class DoorUnlockOnQuestsComplete : MonoBehaviour
     public void ShowDoor()
     {
         doorHidden = false;
-        
+        EnableCollidersBack();
         if (hideSprite && doorSprite != null)
         {
             doorSprite.enabled = true;
@@ -161,7 +203,6 @@ public class DoorUnlockOnQuestsComplete : MonoBehaviour
         {
             doorObject.SetActive(true);
         }
-        
         if (debugLogs)
         {
             Debug.Log("DoorUnlockOnQuestsComplete: Дверь показана обратно.");
