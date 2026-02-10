@@ -19066,6 +19066,7 @@ MonoBehaviour:
   correctSound: {fileID: 0}
   wrongSound: {fileID: 0}
   onlyNormalPlayer: 0
+  onlyPlayerNameContains: Iris
   handBoundsMargin: 50
   productPrefab: {fileID: 1279722333039437321, guid: 834dcd68c27a69f4e9bbaf1fff411db0, type: 3}
   productSpawnPoint: {fileID: 446764489}
@@ -25090,6 +25091,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 504203ca68eb9a24f9fe964f8f01b419, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  clearSupermarketQuestsOnScenes:
+  - maison1
+  - maison
 --- !u!4 &1376199255
 Transform:
   m_ObjectHideFlags: 0
@@ -27229,7 +27233,6 @@ GameObject:
   - component: {fileID: 1903427550}
   - component: {fileID: 1903427549}
   - component: {fileID: 1903427548}
-  - component: {fileID: 1903427547}
   m_Layer: 0
   m_Name: Stove
   m_TagString: Untagged
@@ -27237,103 +27240,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!82 &1903427547
-AudioSource:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1903427546}
-  m_Enabled: 1
-  serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: a95dac8c45b47e149a51df36e5367590, type: 3}
-  m_PlayOnAwake: 0
-  m_Volume: 1
-  m_Pitch: 1
-  Loop: 0
-  Mute: 0
-  Spatialize: 0
-  SpatializePostEffects: 0
-  Priority: 128
-  DopplerLevel: 1
-  MinDistance: 1
-  MaxDistance: 500
-  Pan2D: 0
-  rolloffMode: 0
-  BypassEffects: 0
-  BypassListenerEffects: 0
-  BypassReverbZones: 0
-  rolloffCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  panLevelCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  spreadCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  reverbZoneMixCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
 --- !u!82 &1903427548
 AudioSource:
   m_ObjectHideFlags: 0
@@ -27345,7 +27251,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 0}
+  m_Resource: {fileID: 8300000, guid: ffb159a21c8a04135a5616979c828fab, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -27588,13 +27494,8 @@ MonoBehaviour:
   successPanel: {fileID: 418352319}
   leftNotePrefab: {fileID: 1207446484880082091, guid: 1ea3b9cfd0f03534b9d30c06d9ceafd8, type: 3}
   rightNotePrefab: {fileID: 5797223016771816501, guid: 4e5186bdf9c07ad42bc91c0e5fd87c78, type: 3}
-  musicSource: {fileID: 1903427548}
-  sfxSource: {fileID: 1903427547}
-  rhythmBeatSound: {fileID: 8300000, guid: a95dac8c45b47e149a51df36e5367590, type: 3}
-  hitSound: {fileID: 0}
-  missSound: {fileID: 0}
-  successSound: {fileID: 0}
-  failSound: {fileID: 0}
+  sfxSource: {fileID: 1903427548}
+  rhythmBeatSound: {fileID: 8300000, guid: ffb159a21c8a04135a5616979c828fab, type: 3}
   gameDuration: 10
   beatInterval: 2
   noteSpeed: 200
@@ -27691,7 +27592,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "Accroche les v\xEAtements sur la corde \xE0 linge!"
+  m_Text: "Accroche les v\xEAtements sur la corde \xE0 linge! (E)"
 --- !u!222 &1962677937
 CanvasRenderer:
   m_ObjectHideFlags: 0

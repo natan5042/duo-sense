@@ -46,9 +46,6 @@ public class CookingGame : MonoBehaviour, IInteractable
     public AudioSource sfxSource; // Опционально: если не задан, бит играет через источник у камеры
     public AudioClip rhythmBeatSound; // Звук ритма для женщины
     
-    // Источник у камеры (где AudioListener) — чтобы звук гарантированно был слышен при открытом UI
-    private AudioSource _listenerSource;
-    
     [Header("Настройки игры")]
     public float gameDuration = 30f; // Длительность игры в секундах
     public float beatInterval = 2f; // Интервал между битами ритма (увеличено для более медленной игры)
@@ -124,23 +121,6 @@ public class CookingGame : MonoBehaviour, IInteractable
             sfxSource.mute = false;
             sfxSource.spatialBlend = 0f;
         }
-        
-        // Источник у камеры (где AudioListener) — бит играем отсюда, чтобы точно был слышен при открытом UI
-        EnsureListenerSource();
-    }
-    
-    void EnsureListenerSource()
-    {
-        if (_listenerSource != null) return;
-        var listener = FindFirstObjectByType<AudioListener>();
-        if (listener == null) return;
-        _listenerSource = listener.GetComponent<AudioSource>();
-        if (_listenerSource == null)
-            _listenerSource = listener.gameObject.AddComponent<AudioSource>();
-        _listenerSource.playOnAwake = false;
-        _listenerSource.spatialBlend = 0f;
-        _listenerSource.volume = 1f;
-        _listenerSource.mute = false;
     }
     
     void Update()
@@ -222,31 +202,16 @@ public class CookingGame : MonoBehaviour, IInteractable
             return;
         }
         
-        // Играем бит через источник у камеры (где AudioListener) — так звук всегда слышен при открытом UI
-        EnsureListenerSource();
-        AudioSource sourceToUse = _listenerSource != null ? _listenerSource : sfxSource;
-        if (sourceToUse == null)
-        {
-            sfxSource = GetComponent<AudioSource>();
-            if (sfxSource == null)
-            {
-                var sources = GetComponentsInChildren<AudioSource>(true);
-                if (sources.Length > 0) sfxSource = sources[0];
-            }
-            sourceToUse = sfxSource;
-        }
-        
-        if (sourceToUse == null)
-        {
-            Debug.LogError("CookingGame: нет AudioSource для бита (ни у камеры, ни на объекте).");
-            return;
-        }
-        
-        if (!sourceToUse.enabled) sourceToUse.enabled = true;
-        if (sourceToUse.volume <= 0f) sourceToUse.volume = 1f;
-        if (sourceToUse.mute) sourceToUse.mute = false;
-        sourceToUse.spatialBlend = 0f;
-        sourceToUse.PlayOneShot(rhythmBeatSound);
+        // PlayClipAtPoint создаёт временный источник — не зависит от активности камеры/Stove, всегда слышен
+        Vector3 playPos = Vector3.zero;
+        var listener = Object.FindFirstObjectByType<AudioListener>();
+        if (listener != null && listener.gameObject.activeInHierarchy)
+            playPos = listener.transform.position;
+        else if (uiCamera != null && uiCamera.gameObject.activeInHierarchy)
+            playPos = uiCamera.transform.position;
+        else if (Camera.main != null)
+            playPos = Camera.main.transform.position;
+        AudioSource.PlayClipAtPoint(rhythmBeatSound, playPos, 1f);
         
         // Визуальный эффект
         if (rhythmIndicator != null)
