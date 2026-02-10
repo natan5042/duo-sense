@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace GameQuests
 {
@@ -99,6 +100,9 @@ namespace GameQuests
         // Событие для уведомления UI об изменениях
         public System.Action OnQuestsChanged;
 
+        [Tooltip("Noms de scènes (ex: maison1) pour lesquelles les quêtes supermarché sont auto-supprimées à l'entrée.")]
+        public List<string> clearSupermarketQuestsOnScenes = new List<string> { "maison1", "maison" };
+
         void Awake()
         {
             if (Instance == null)
@@ -109,6 +113,32 @@ namespace GameQuests
             else if (Instance != this)
             {
                 Destroy(this);
+                return;
+            }
+        }
+
+        void OnEnable()
+        {
+            SceneManager.sceneLoaded += OnSceneLoaded;
+        }
+
+        void OnDisable()
+        {
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+        }
+
+        void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            if (clearSupermarketQuestsOnScenes == null) return;
+            string name = scene.name ?? "";
+            foreach (string entry in clearSupermarketQuestsOnScenes)
+            {
+                if (string.IsNullOrEmpty(entry)) continue;
+                if (name.Equals(entry, System.StringComparison.OrdinalIgnoreCase) || name.IndexOf(entry, System.StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    RemoveQuestsByTitles(new[] { "Traverser l'obstacle", "Acheter les produits" });
+                    return;
+                }
             }
         }
 
@@ -144,6 +174,25 @@ namespace GameQuests
                 // Уведомляем UI
                 NotifyQuestsChanged();
             }
+        }
+
+        /// <summary> Удаляет квесты по названиям (например квесты супермаркета при переходе в дом). </summary>
+        public void RemoveQuestsByTitles(System.Collections.Generic.IEnumerable<string> titles)
+        {
+            if (titles == null || activeQuests == null) return;
+            var toRemove = new System.Collections.Generic.List<Quest>();
+            foreach (var q in activeQuests)
+            {
+                if (q == null) continue;
+                foreach (var t in titles)
+                    if (!string.IsNullOrEmpty(t) && q.title == t) { toRemove.Add(q); break; }
+            }
+            foreach (var q in toRemove)
+            {
+                activeQuests.Remove(q);
+                Debug.Log($"QuestSystem: Квест '{q.title}' удалён (смена уровня). Remaining: {activeQuests.Count}");
+            }
+            if (toRemove.Count > 0) NotifyQuestsChanged();
         }
         
         public void NotifyQuestsChanged()
