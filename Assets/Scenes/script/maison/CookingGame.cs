@@ -43,13 +43,11 @@ public class CookingGame : MonoBehaviour, IInteractable
     public GameObject rightNotePrefab;
     
     [Header("Аудио")]
-    public AudioSource musicSource;
-    public AudioSource sfxSource;
+    public AudioSource sfxSource; // Опционально: если не задан, бит играет через источник у камеры
     public AudioClip rhythmBeatSound; // Звук ритма для женщины
-    public AudioClip hitSound; // Звук попадания
-    public AudioClip missSound; // Звук промаха
-    public AudioClip successSound;
-    public AudioClip failSound;
+    
+    // Источник у камеры (где AudioListener) — чтобы звук гарантированно был слышен при открытом UI
+    private AudioSource _listenerSource;
     
     [Header("Настройки игры")]
     public float gameDuration = 30f; // Длительность игры в секундах
@@ -122,37 +120,27 @@ public class CookingGame : MonoBehaviour, IInteractable
         if (sfxSource != null)
         {
             sfxSource.enabled = true;
-            if (sfxSource.volume == 0f)
-            {
-                sfxSource.volume = 1f; // Устанавливаем громкость только если она 0
-            }
+            if (sfxSource.volume == 0f) sfxSource.volume = 1f;
             sfxSource.mute = false;
-            Debug.Log($"CookingGame: sfxSource настроен. enabled: {sfxSource.enabled}, volume: {sfxSource.volume}");
+            sfxSource.spatialBlend = 0f;
         }
         
-        if (musicSource == null)
-        {
-            // Ищем AudioSource на дочерних объектах
-            AudioSource[] sources = GetComponentsInChildren<AudioSource>(true);
-            foreach (var source in sources)
-            {
-                if (source != sfxSource)
-                {
-                    musicSource = source;
-                    break;
-                }
-            }
-        }
-        
-        if (musicSource != null)
-        {
-            musicSource.enabled = true;
-            if (musicSource.volume == 0f)
-            {
-                musicSource.volume = 1f;
-            }
-            musicSource.mute = false;
-        }
+        // Источник у камеры (где AudioListener) — бит играем отсюда, чтобы точно был слышен при открытом UI
+        EnsureListenerSource();
+    }
+    
+    void EnsureListenerSource()
+    {
+        if (_listenerSource != null) return;
+        var listener = FindFirstObjectByType<AudioListener>();
+        if (listener == null) return;
+        _listenerSource = listener.GetComponent<AudioSource>();
+        if (_listenerSource == null)
+            _listenerSource = listener.gameObject.AddComponent<AudioSource>();
+        _listenerSource.playOnAwake = false;
+        _listenerSource.spatialBlend = 0f;
+        _listenerSource.volume = 1f;
+        _listenerSource.mute = false;
     }
     
     void Update()
@@ -228,57 +216,37 @@ public class CookingGame : MonoBehaviour, IInteractable
         canWomanPress = true;
         womanPressWindow = hitWindow;
         
-        // Проигрываем звук ритма
         if (rhythmBeatSound == null)
         {
             Debug.LogWarning("CookingGame: rhythmBeatSound не назначен в Inspector!");
             return;
         }
         
-        if (sfxSource == null)
+        // Играем бит через источник у камеры (где AudioListener) — так звук всегда слышен при открытом UI
+        EnsureListenerSource();
+        AudioSource sourceToUse = _listenerSource != null ? _listenerSource : sfxSource;
+        if (sourceToUse == null)
         {
-            Debug.LogWarning("CookingGame: sfxSource не назначен! Пытаюсь найти...");
             sfxSource = GetComponent<AudioSource>();
             if (sfxSource == null)
             {
-                AudioSource[] sources = GetComponentsInChildren<AudioSource>(true);
+                var sources = GetComponentsInChildren<AudioSource>(true);
                 if (sources.Length > 0) sfxSource = sources[0];
             }
+            sourceToUse = sfxSource;
         }
         
-        if (sfxSource == null)
+        if (sourceToUse == null)
         {
-            Debug.LogError("CookingGame: sfxSource == null! Не могу воспроизвести звук.");
+            Debug.LogError("CookingGame: нет AudioSource для бита (ни у камеры, ни на объекте).");
             return;
         }
         
-        // Убеждаемся что AudioSource активен и настроен
-        if (!sfxSource.enabled)
-        {
-            Debug.LogWarning("CookingGame: sfxSource выключен! Включаю...");
-            sfxSource.enabled = true;
-        }
-        
-        if (sfxSource.volume <= 0f)
-        {
-            Debug.LogWarning("CookingGame: sfxSource.volume = 0! Устанавливаю 1...");
-            sfxSource.volume = 1f;
-        }
-        
-        if (sfxSource.mute)
-        {
-            Debug.LogWarning("CookingGame: sfxSource.mute = true! Выключаю...");
-            sfxSource.mute = false;
-        }
-        
-        // PlayClipAtPoint создаёт временный источник у камеры — звук гарантированно слышен при любом AudioListener
-        Vector3 listenPos = (Camera.main != null ? Camera.main.transform : (uiCamera != null ? uiCamera.transform : null))?.position ?? Vector3.zero;
-        if (listenPos == Vector3.zero)
-        {
-            var cam = FindFirstObjectByType<Camera>();
-            if (cam != null) listenPos = cam.transform.position;
-        }
-        AudioSource.PlayClipAtPoint(rhythmBeatSound, listenPos, 1f);
+        if (!sourceToUse.enabled) sourceToUse.enabled = true;
+        if (sourceToUse.volume <= 0f) sourceToUse.volume = 1f;
+        if (sourceToUse.mute) sourceToUse.mute = false;
+        sourceToUse.spatialBlend = 0f;
+        sourceToUse.PlayOneShot(rhythmBeatSound);
         
         // Визуальный эффект
         if (rhythmIndicator != null)
@@ -291,12 +259,6 @@ public class CookingGame : MonoBehaviour, IInteractable
     {
         canWomanPress = false;
         womanHits++;
-        
-        if (sfxSource != null && hitSound != null)
-        {
-            sfxSource.PlayOneShot(hitSound);
-        }
-        
         SetWomanFeedback("Bien!", Color.green);
     }
     
@@ -305,12 +267,6 @@ public class CookingGame : MonoBehaviour, IInteractable
         canWomanPress = false;
         womanLives--;
         UpdateWomanHearts();
-        
-        if (sfxSource != null && missSound != null)
-        {
-            sfxSource.PlayOneShot(missSound);
-        }
-        
         SetWomanFeedback("Raté!", Color.red);
     }
     
@@ -465,12 +421,6 @@ public class CookingGame : MonoBehaviour, IInteractable
     void ManHit()
     {
         manHits++;
-        
-        if (sfxSource != null && hitSound != null)
-        {
-            sfxSource.PlayOneShot(hitSound);
-        }
-        
         SetManFeedback("Super!", Color.green);
     }
     
@@ -478,12 +428,6 @@ public class CookingGame : MonoBehaviour, IInteractable
     {
         manLives--;
         UpdateManHearts();
-        
-        if (sfxSource != null && missSound != null)
-        {
-            sfxSource.PlayOneShot(missSound);
-        }
-        
         SetManFeedback("Raté!", Color.red);
     }
     
@@ -734,21 +678,9 @@ public class CookingGame : MonoBehaviour, IInteractable
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
         
-        // Запускаем музыку
-        if (musicSource != null)
-        {
-            musicSource.Play();
-            Debug.Log("CookingGame: Музыка запущена");
-        }
-        else
-        {
-            Debug.LogWarning("CookingGame: musicSource не назначен! Музыка не будет играть.");
-        }
-        
-        // Проверяем что звуки настроены
         if (sfxSource == null)
         {
-            Debug.LogError("CookingGame: sfxSource не назначен! Звуки не будут работать.");
+            Debug.LogError("CookingGame: sfxSource не назначен! Звук бита не будет играть.");
         }
         else if (rhythmBeatSound == null)
         {
@@ -761,23 +693,11 @@ public class CookingGame : MonoBehaviour, IInteractable
         isPlaying = false;
         IsCookingGameActive = false;
         
-        // Останавливаем музыку
-        if (musicSource != null)
-        {
-            musicSource.Stop();
-        }
-        
-        // Определяем результат
         bool success = womanLives > 0 && manLives > 0;
         
         if (success)
         {
-            // Победа!
             if (successPanel != null) successPanel.SetActive(true);
-            if (sfxSource != null && successSound != null)
-            {
-                sfxSource.PlayOneShot(successSound);
-            }
             
             if (resultText != null)
             {
@@ -799,13 +719,7 @@ public class CookingGame : MonoBehaviour, IInteractable
         }
         else
         {
-            // Проигрыш
             if (gameOverPanel != null) gameOverPanel.SetActive(true);
-            if (sfxSource != null && failSound != null)
-            {
-                sfxSource.PlayOneShot(failSound);
-            }
-            
             string loser = womanLives <= 0 ? "La femme" : "L'homme";
             if (resultText != null)
             {
