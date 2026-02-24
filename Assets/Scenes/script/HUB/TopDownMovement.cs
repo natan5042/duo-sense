@@ -25,9 +25,21 @@ public class TopDownMovement : MonoBehaviour
     [Tooltip("Décalage de rotation en degrés pour aligner le sprite (ex: -90 ou +90 si les directions sont décalées)")]
     public float rotationOffsetDegrees = 0f;
 
+    [Header("Animation manuelle (Sprite Swap, comme WheelchairMovement)")]
+    [Tooltip("Si true, cycle de sprites à la place de l'Animator (comme en grotte)")]
+    public bool useSpriteCycleAnimation = false;
+    public SpriteRenderer spriteRenderer;
+    [Tooltip("Sprites du cycle en mouvement (ordre de lecture)")]
+    public Sprite[] moveCycle;
+    [Tooltip("Sprite à l'arrêt (optionnel, sinon premier de moveCycle)")]
+    public Sprite idleSprite;
+    public float moveFrameRate = 8f;
+
     private Rigidbody2D rb;
     private Vector2 currentInput;
     private Vector2 lastFacing = Vector2.down; // Orientation par défaut
+    private int moveFrameIndex;
+    private float moveFrameTimer;
 
     void Awake()
     {
@@ -36,6 +48,15 @@ public class TopDownMovement : MonoBehaviour
         rb.linearDamping = 0f;         // Pas de frottement artificiel
         if (freezeRotation)
             rb.constraints = RigidbodyConstraints2D.FreezeRotation; // évite la rotation lors des collisions
+    }
+
+    void Start()
+    {
+        if (useSpriteCycleAnimation)
+        {
+            if (spriteRenderer == null) spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+            if (animator != null) animator.enabled = false; // Éviter conflit avec le cycle manuel
+        }
     }
 
     void Update()
@@ -49,11 +70,43 @@ public class TopDownMovement : MonoBehaviour
 
         UpdateFacing();
 
+        if (useSpriteCycleAnimation)
+        {
+            UpdateSpriteCycle();
+            return;
+        }
+
         if (animator)
         {
             animator.SetFloat("MoveX", currentInput.x);
             animator.SetFloat("MoveY", currentInput.y);
             animator.SetFloat("Speed", currentInput.sqrMagnitude);
+        }
+    }
+
+    void UpdateSpriteCycle()
+    {
+        if (spriteRenderer == null) return;
+        bool isMoving = currentInput.sqrMagnitude > 0.01f;
+        if (isMoving && moveCycle != null && moveCycle.Length > 0)
+        {
+            moveFrameTimer += Time.deltaTime;
+            float frameDuration = 1f / Mathf.Max(1f, moveFrameRate);
+            while (moveFrameTimer >= frameDuration)
+            {
+                moveFrameTimer -= frameDuration;
+                moveFrameIndex = (moveFrameIndex + 1) % moveCycle.Length;
+            }
+            spriteRenderer.sprite = moveCycle[moveFrameIndex];
+        }
+        else
+        {
+            moveFrameIndex = 0;
+            moveFrameTimer = 0f;
+            if (idleSprite != null)
+                spriteRenderer.sprite = idleSprite;
+            else if (moveCycle != null && moveCycle.Length > 0)
+                spriteRenderer.sprite = moveCycle[0];
         }
     }
 
