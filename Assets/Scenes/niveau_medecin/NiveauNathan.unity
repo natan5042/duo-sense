@@ -407,6 +407,7 @@ GameObject:
   - component: {fileID: 152046624}
   - component: {fileID: 152046623}
   - component: {fileID: 152046625}
+  - component: {fileID: 152046626}
   m_Layer: 0
   m_Name: portePuzzle
   m_TagString: Untagged
@@ -504,7 +505,28 @@ MonoBehaviour:
   puzzleCameraSize: 19
   showPrompt: 1
   promptText: Appuyez sur [S] pour entrer
+  promptTextUI: {fileID: 0}
+  promptPanel: {fileID: 0}
   doorSound: {fileID: 0}
+--- !u!114 &152046626
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 152046622}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dddb73ed735d5f848a7ddc5577c35acb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hintText: Appuyez sur S pour entrer
+  interactionDistance: 3.5
+  hintOffset: {x: 0, y: 0.3, z: 0}
+  playerTag: Player
+  hintCanvasPrefab: {fileID: 0}
+  fontSize: 20
+  panelSize: {x: 200, y: 50}
 --- !u!1 &179741760
 GameObject:
   m_ObjectHideFlags: 0
@@ -18508,6 +18530,8 @@ MonoBehaviour:
   puzzleCameraSize: 10
   showPrompt: 1
   promptText: Appuyez sur [S] pour entrer
+  promptTextUI: {fileID: 0}
+  promptPanel: {fileID: 0}
   doorSound: {fileID: 0}
 --- !u!4 &749029714
 Transform:
@@ -21193,11 +21217,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dddb73ed735d5f848a7ddc5577c35acb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hintText: "Appuyer \u2193"
+  hintText: "Appuyez sur \u2193 "
   interactionDistance: 3
   hintOffset: {x: 0, y: 3.5, z: 0}
   playerTag: Player
   hintCanvasPrefab: {fileID: 0}
+  fontSize: 40
+  panelSize: {x: 400, y: 100}
 --- !u!114 &1496545281
 MonoBehaviour:
   m_ObjectHideFlags: 0

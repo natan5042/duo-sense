@@ -13,6 +13,10 @@ public class InteractionHint : MonoBehaviour
     
     [Header("UI")]
     public GameObject hintCanvasPrefab; // Префаб Canvas с подсказкой (опционально)
+    [Tooltip("Размер шрифта. На одном объекте можно уменьшить (например 24), на остальных оставить 40.")]
+    public int fontSize = 40;
+    [Tooltip("Размер панели подсказки в пикселях. (0,0) = по умолчанию 400x100.")]
+    public Vector2 panelSize = new Vector2(400, 100);
     private GameObject hintUI; // Созданный UI элемент
     private Text hintTextComponent;
     private Canvas hintCanvas;
@@ -151,8 +155,8 @@ public class InteractionHint : MonoBehaviour
             panelObj.transform.SetParent(canvasObj.transform, false);
             
             RectTransform panelRect = panelObj.AddComponent<RectTransform>();
-            // Размер в пикселях для world space Canvas
-            panelRect.sizeDelta = new Vector2(400, 100); // БОЛЬШЕ размер для видимости
+            Vector2 ps = (panelSize.x > 0 && panelSize.y > 0) ? panelSize : new Vector2(400, 100);
+            panelRect.sizeDelta = ps;
             panelRect.anchoredPosition = Vector2.zero;
             // Убеждаемся, что панель правильно позиционирована
             panelRect.anchorMin = new Vector2(0.5f, 0.5f);
@@ -176,7 +180,7 @@ public class InteractionHint : MonoBehaviour
             hintTextComponent = textObj.AddComponent<Text>();
             hintTextComponent.text = hintText;
             hintTextComponent.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            hintTextComponent.fontSize = 40; // ЕЩЕ БОЛЬШЕ размер шрифта для видимости
+            hintTextComponent.fontSize = fontSize > 0 ? fontSize : 40;
             hintTextComponent.alignment = TextAnchor.MiddleCenter;
             hintTextComponent.color = Color.yellow; // ЯРКИЙ желтый цвет
             hintTextComponent.fontStyle = FontStyle.Bold; // Жирный шрифт

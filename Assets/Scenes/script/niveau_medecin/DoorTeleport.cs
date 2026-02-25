@@ -1,6 +1,7 @@
 using UnityEngine;
+using UnityEngine.UI;
 
-public class DoorTeleport : MonoBehaviour
+public class DoorTeleport : MonoBehaviour, IInteractable
 {
     [Header("T�l�portation")]
     [Tooltip("Position o� Iris sera t�l�port�e")]
@@ -54,6 +55,10 @@ public class DoorTeleport : MonoBehaviour
     [Header("Feedback Visuel (Optionnel)")]
     public bool showPrompt = true;
     public string promptText = "Appuyez sur [S] pour entrer";
+    [Tooltip("UI Text à afficher (si vide, on cherche un enfant 'PromptText' ou on crée un Canvas à la volée)")]
+    public Text promptTextUI;
+    [Tooltip("Panel/GameObject à activer quand Iris est dans la zone (optionnel)")]
+    public GameObject promptPanel;
 
     [Header("Audio (Optionnel)")]
     public AudioSource doorSound;
@@ -61,6 +66,8 @@ public class DoorTeleport : MonoBehaviour
     private bool playerInRange = false;
     private GameObject playerInZone = null;
     private bool puzzleActive = false;
+    private Canvas promptCanvas;
+    private Text promptTextRuntime;
     private GameObject irisObject;
     private float originalGravityScale = 1f;
     private Vector3 originalScale;
@@ -80,33 +87,114 @@ public class DoorTeleport : MonoBehaviour
                 }
             }
         }
+
+        if (showPrompt && promptTextUI == null && promptPanel == null)
+        {
+            TryFindOrCreatePromptUI();
+        }
+    }
+
+    void TryFindOrCreatePromptUI()
+    {
+        Transform t = transform.Find("PromptText");
+        if (t != null)
+        {
+            promptTextUI = t.GetComponent<Text>();
+            if (promptTextUI != null) return;
+        }
+        promptTextUI = GetComponentInChildren<Text>(true);
+        if (promptTextUI != null) return;
+
+        CreatePromptCanvas();
+    }
+
+    void CreatePromptCanvas()
+    {
+        GameObject go = new GameObject("DoorTeleportPrompt");
+        go.transform.SetParent(null);
+        var canvas = go.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 30000;
+        var scaler = go.AddComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920, 1080);
+        go.AddComponent<GraphicRaycaster>();
+
+        GameObject textGo = new GameObject("Text");
+        textGo.transform.SetParent(go.transform, false);
+        promptTextRuntime = textGo.AddComponent<Text>();
+        promptTextRuntime.text = promptText;
+        promptTextRuntime.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        promptTextRuntime.fontSize = 36;
+        promptTextRuntime.alignment = TextAnchor.MiddleCenter;
+        promptTextRuntime.color = Color.white;
+
+        RectTransform rt = textGo.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(0.5f, 0.15f);
+        rt.anchorMax = new Vector2(0.5f, 0.15f);
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.anchoredPosition = Vector2.zero;
+        rt.sizeDelta = new Vector2(800, 80);
+
+        promptCanvas = canvas;
+        go.SetActive(false);
+    }
+
+    void ShowPromptUI()
+    {
+        if (!showPrompt) return;
+        if (promptPanel != null) { promptPanel.SetActive(true); return; }
+        if (promptTextUI != null)
+        {
+            promptTextUI.text = promptText;
+            promptTextUI.gameObject.SetActive(true);
+            if (promptTextUI.transform.parent != null)
+                promptTextUI.transform.parent.gameObject.SetActive(true);
+            return;
+        }
+        if (promptCanvas != null && promptTextRuntime != null)
+        {
+            promptTextRuntime.text = promptText;
+            promptCanvas.gameObject.SetActive(true);
+        }
+    }
+
+    void HidePromptUI()
+    {
+        if (promptPanel != null) promptPanel.SetActive(false);
+        if (promptTextUI != null)
+        {
+            promptTextUI.gameObject.SetActive(false);
+            if (promptTextUI.transform.parent != null)
+                promptTextUI.transform.parent.gameObject.SetActive(false);
+        }
+        if (promptCanvas != null) promptCanvas.gameObject.SetActive(false);
     }
 
     void OnTriggerEnter2D(Collider2D other)
     {
-                if (other.CompareTag("Player") && other.name.Contains(targetPlayerName))
-                {
-                        playerInRange = true;
-                        playerInZone = other.gameObject;
-
-                        if (showPrompt)
-                        {
-                                Debug.Log(promptText);
-                        }
-                }
+        if (other.CompareTag("Player") && other.name.Contains(targetPlayerName))
+        {
+            playerInRange = true;
+            playerInZone = other.gameObject;
+            if (showPrompt) ShowPromptUI();
+        }
     }
 
     void OnTriggerExit2D(Collider2D other)
     {
         if (other.gameObject == playerInZone)
         {
-   playerInRange = false;
-     playerInZone = null;
+            playerInRange = false;
+            playerInZone = null;
+            HidePromptUI();
         }
-}
+    }
 
     void Update()
     {
+        if (playerInZone == null && playerInRange) playerInRange = false;
+
         if (playerInRange && Input.GetKeyDown(interactKey) && playerInZone != null && !puzzleActive)
         {
             TeleportPlayer();
@@ -116,6 +204,17 @@ public class DoorTeleport : MonoBehaviour
         {
             ExitPuzzleMode();
         }
+    }
+
+    public void Interact(PlayerInteraction player)
+    {
+        if (player == null || player.gameObject == null || !player.gameObject.name.Contains(targetPlayerName)) return;
+        var col = GetComponent<Collider2D>();
+        float maxDist = col != null ? Mathf.Max(col.bounds.size.x, col.bounds.size.y) * 2f : 5f;
+        if (Vector3.Distance(transform.position, player.transform.position) > maxDist) return;
+        playerInZone = player.gameObject;
+        playerInRange = true;
+        if (!puzzleActive) TeleportPlayer();
     }
 
     void TeleportPlayer()

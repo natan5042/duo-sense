@@ -107156,11 +107156,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dddb73ed735d5f848a7ddc5577c35acb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hintText: "Appuyer \u2193"
+  hintText: "Appuyez sur \u2193 "
   interactionDistance: 3
   hintOffset: {x: 0, y: 3, z: 0}
   playerTag: Player
   hintCanvasPrefab: {fileID: 0}
+  fontSize: 40
+  panelSize: {x: 400, y: 100}
 --- !u!114 &1756949060
 MonoBehaviour:
   m_ObjectHideFlags: 0
