@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class DoorOpening : MonoBehaviour
+public class DoorOpening : MonoBehaviour, IInteractable
 {
     [Header("Interaction")]
     [Tooltip("Distance à partir de laquelle le joueur peut interagir")]
@@ -104,6 +104,34 @@ public class DoorOpening : MonoBehaviour
             player1.position = teleportDestinationPlayer1;
             player2.position = teleportDestinationPlayer2;
             lastTeleportTime = Time.time;
+        }
+    }
+
+    public void Interact(PlayerInteraction player)
+    {
+        if (player == null || player.transform == null) return;
+        if (Time.time - lastTeleportTime < teleportCooldown) return;
+        ResolvePlayers();
+        float dist = Vector3.Distance(player.transform.position, transform.position);
+        if (dist > interactionRadius) return;
+        if (requireBothPlayers)
+        {
+            if (player1 == null || player2 == null) return;
+            bool p1InRange = Vector3.Distance(player1.position, transform.position) <= interactionRadius;
+            bool p2InRange = Vector3.Distance(player2.position, transform.position) <= interactionRadius;
+            if (p1InRange && p2InRange)
+            {
+                player1.position = teleportDestinationPlayer1;
+                player2.position = teleportDestinationPlayer2;
+                lastTeleportTime = Time.time;
+                if (debugLogs) Debug.Log($"[{doorName}] Téléport duo via Interact.");
+            }
+        }
+        else
+        {
+            player.transform.position = teleportDestination;
+            lastTeleportTime = Time.time;
+            if (debugLogs) Debug.Log($"[{doorName}] Téléport de {player.name} via Interact.");
         }
     }
 

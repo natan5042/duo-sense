@@ -17,25 +17,21 @@ public class LevelTransitionZone : MonoBehaviour
     /// Débloque aussi la scène de destination (sceneName).
     [SerializeField] private bool unlockTargetSceneToo = true;
     
-    /// Référence au composant de mouvement du joueur.
     [SerializeField] private PlayerMovement player;
-    
-    /// Référence au composant de mouvement du fauteuil.
     [SerializeField] private WheelchairMovement wheelchair;
-    
-    /// Si true, les DEUX personnages doivent être présents. Si false, UN seul suffit.
+    [SerializeField] private GameObject playerObject;
+    [SerializeField] private GameObject wheelchairObject;
     [SerializeField] private bool requireBothInside = true;
     
     /// Active les messages de debug.
     [SerializeField] private bool logEvents = true;
 
-    /// Indique si le joueur est dans la zone.
     private bool playerInside;
-    
-    /// Indique si le fauteuil est dans la zone.
     private bool wheelchairInside;
-    
-    /// Empêche les chargements multiples simultanés.
+    private bool topDownPlayerInside;
+    private bool topDownWheelchairInside;
+    private bool customPlayerInside;
+    private bool customWheelchairInside;
     private bool loading;
 
     /// Appelé au reset: force le collider en mode Trigger.
@@ -88,26 +84,38 @@ public class LevelTransitionZone : MonoBehaviour
             }
         }
 
-        // Vérifie si c'est le fauteuil
         var foundWheelchair = other.GetComponentInParent<WheelchairMovement>();
         if (foundWheelchair != null && (wheelchair == null || foundWheelchair == wheelchair))
         {
             wheelchair = foundWheelchair;
             wheelchairInside = isInside;
-            if (logEvents)
-            {
-                Debug.Log($"[LevelTransitionZone] Fauteuil {(isInside ? "entre" : "sort")}.");
-            }
+            if (logEvents) Debug.Log($"[LevelTransitionZone] Fauteuil {(isInside ? "entre" : "sort")}.");
         }
 
-        // Compte les personnages actifs
-        bool playerExists = player != null && player.gameObject.activeInHierarchy;
-        bool wheelchairExists = wheelchair != null && wheelchair.gameObject.activeInHierarchy;
+        if (other.GetComponentInParent<TopDownMovement>() != null || other.GetComponentInParent<TopDownPlayer>() != null)
+        {
+            topDownPlayerInside = isInside;
+            if (logEvents) Debug.Log($"[LevelTransitionZone] TopDown joueur {(isInside ? "entre" : "sort")}.");
+        }
+        if (other.GetComponentInParent<TopDownWheelchair>() != null)
+        {
+            topDownWheelchairInside = isInside;
+            if (logEvents) Debug.Log($"[LevelTransitionZone] TopDown fauteuil {(isInside ? "entre" : "sort")}.");
+        }
+        if (playerObject != null && (other.transform == playerObject.transform || other.transform.IsChildOf(playerObject.transform) || playerObject.transform.IsChildOf(other.transform)))
+        {
+            customPlayerInside = isInside;
+            if (logEvents) Debug.Log($"[LevelTransitionZone] Player object {(isInside ? "entre" : "sort")}.");
+        }
+        if (wheelchairObject != null && (other.transform == wheelchairObject.transform || other.transform.IsChildOf(wheelchairObject.transform) || wheelchairObject.transform.IsChildOf(other.transform)))
+        {
+            customWheelchairInside = isInside;
+            if (logEvents) Debug.Log($"[LevelTransitionZone] Wheelchair object {(isInside ? "entre" : "sort")}.");
+        }
 
-        // Détermine si la condition de transition est remplie
-        bool conditionMet = (playerExists && wheelchairExists)
-            ? (requireBothInside ? playerInside && wheelchairInside : playerInside || wheelchairInside)
-            : (playerExists && playerInside) || (wheelchairExists && wheelchairInside);
+        bool anyPlayer = playerInside || topDownPlayerInside || customPlayerInside;
+        bool anyWheelchair = wheelchairInside || topDownWheelchairInside || customWheelchairInside;
+        bool conditionMet = requireBothInside ? (anyPlayer && anyWheelchair) : (anyPlayer || anyWheelchair);
 
         // Lance le chargement si la condition est remplie
         if (conditionMet)

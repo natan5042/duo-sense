@@ -1,31 +1,16 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// Вешается на панель в мире. По S или стрелке вниз открывается полноэкранный оверлей по центру камеры,
-/// перекрывает все объекты. Можно задать отдельный спрайт (например панель без ножек) для оверлея.
-/// Закрытие — той же S или стрелкой вниз.
-/// </summary>
 public class PanelZoomInteraction : MonoBehaviour, IInteractable
 {
-    [Header("Zoom overlay")]
-    [Tooltip("Спрайт для оверлея (например панель без ножек). Если пусто — берётся с панели в мире.")]
     public Sprite zoomSprite;
-    [Tooltip("Размер картинки по высоте экрана (0.7 = 70%)")]
     [Range(0.3f, 1f)]
     public float imageHeightRatio = 0.75f;
-    [Tooltip("Затемнить фон за панелью")]
     public bool dimBackground = true;
-    [Tooltip("Цвет затемнения")]
     public Color dimColor = new Color(0f, 0f, 0f, 0.65f);
-
-    [Header("Interaction")]
     public float interactionDistance = 4f;
     public KeyCode interactKey1 = KeyCode.S;
     public KeyCode interactKey2 = KeyCode.DownArrow;
-
-    [Header("Audio")]
-    [Tooltip("Звук при открытии оверлея. При закрытии воспроизведение останавливается; при новом открытии — с начала.")]
     public AudioClip openSound;
     public AudioSource audioSource;
 

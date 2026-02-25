@@ -3,64 +3,26 @@ using UnityEngine.UI;
 
 public class DoorTeleport : MonoBehaviour, IInteractable
 {
-    [Header("T�l�portation")]
-    [Tooltip("Position o� Iris sera t�l�port�e")]
     public Transform teleportDestination;
-  
-    [Tooltip("Ou sp�cifiez directement une position")]
     public Vector3 destinationPosition;
-    
-    [Tooltip("Utiliser le Transform ou la position Vector3")]
     public bool useTransform = true;
-
-    [Header("Interaction")]
-    [Tooltip("Touche pour entrer dans la porte")]
     public KeyCode interactKey = KeyCode.S;
-
-    [Tooltip("Nom du joueur qui peut utiliser la porte (Iris)")]
     public string targetPlayerName = "Iris";
-
-    [Header("Caméra")]
-    [Tooltip("Référence au script CameraFollow (sur la caméra principale)")]
     public CameraFollow cameraFollowScript;
-
-    [Tooltip("Forcer la caméra à suivre uniquement Iris pendant le puzzle")]
     public bool overrideCameraToIris = true;
-
-    [Header("Gravité")]
-    [Tooltip("Désactiver la gravité d'Iris pendant le puzzle")]
     public bool disableGravityDuringPuzzle = true;
-
-    [Tooltip("Touche pour sortir du puzzle et restaurer la gravité")]
     public KeyCode exitPuzzleKey = KeyCode.Escape;
-
-    [Header("Taille du personnage")]
-    [Tooltip("Réduire la taille d'Iris pendant le puzzle")]
     public bool scaleDownPlayer = true;
-
-    [Tooltip("Multiplicateur de taille (0.5 = moitié, 1.0 = normal)")]
     [Range(0.1f, 1.0f)]
     public float scaleMultiplier = 0.5f;
-
-    [Header("Puzzle")]
-    [Tooltip("Référence au contrôleur du puzzle")]
     public PuzzleLeverController puzzleController;
-    [Tooltip("Mouvement d'Iris pour pouvoir le désactiver pendant le puzzle")]
     public PlayerMovement irisMovement;
-    [Tooltip("Point de focus caméra pour afficher tout le puzzle")]
     public Transform puzzleCameraAnchor;
-    [Tooltip("Taille de caméra pour voir tout le puzzle")]
     public float puzzleCameraSize = 19f;
-
-    [Header("Feedback Visuel (Optionnel)")]
     public bool showPrompt = true;
     public string promptText = "Appuyez sur [S] pour entrer";
-    [Tooltip("UI Text à afficher (si vide, on cherche un enfant 'PromptText' ou on crée un Canvas à la volée)")]
     public Text promptTextUI;
-    [Tooltip("Panel/GameObject à activer quand Iris est dans la zone (optionnel)")]
     public GameObject promptPanel;
-
-    [Header("Audio (Optionnel)")]
     public AudioSource doorSound;
 
     private bool playerInRange = false;

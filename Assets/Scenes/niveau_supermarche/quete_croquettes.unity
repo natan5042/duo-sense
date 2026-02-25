@@ -38861,6 +38861,8 @@ MonoBehaviour:
   unlockTargetSceneToo: 1
   player: {fileID: 1276250383}
   wheelchair: {fileID: 547278886}
+  playerObject: {fileID: 0}
+  wheelchairObject: {fileID: 0}
   requireBothInside: 1
   logEvents: 1
 --- !u!61 &525564574
@@ -102752,6 +102754,7 @@ GameObject:
   - component: {fileID: 1432661507}
   - component: {fileID: 1432661508}
   - component: {fileID: 1432661509}
+  - component: {fileID: 1432661510}
   m_Layer: 7
   m_Name: "petit supermarch\xE9_0"
   m_TagString: Untagged
@@ -102900,6 +102903,25 @@ MonoBehaviour:
   doorName: Porte
   teleportCooldown: 1
   debugLogs: 1
+--- !u!114 &1432661510
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1432661505}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dddb73ed735d5f848a7ddc5577c35acb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hintText: "Appuyez sur \u2193 ou S"
+  interactionDistance: 4
+  hintOffset: {x: 0, y: 1.5, z: 0}
+  playerTag: Player
+  hintCanvasPrefab: {fileID: 0}
+  fontSize: 40
+  panelSize: {x: 400, y: 100}
 --- !u!1 &1439576739
 GameObject:
   m_ObjectHideFlags: 0

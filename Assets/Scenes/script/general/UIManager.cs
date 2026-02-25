@@ -28,16 +28,23 @@ public class UIManager : MonoBehaviour
             Destroy(gameObject);
         }
 
+        EnsureBlackScreenGroup();
         if (blackScreenGroup != null)
-        {
-            blackScreenGroup.alpha = 0f; // Commence transparent
-        }
+            blackScreenGroup.alpha = 0f;
     }
-    
-    // Fonction appelée par DarkZone.cs pour rendre l'écran noir ou transparent
+
+    void EnsureBlackScreenGroup()
+    {
+        if (blackScreenGroup != null) return;
+        blackScreenGroup = GetComponentInChildren<CanvasGroup>();
+        if (blackScreenGroup != null) return;
+        blackScreenGroup = FindFirstObjectByType<CanvasGroup>();
+    }
+
     public void StartFade(float targetAlpha)
     {
-        StopAllCoroutines(); 
+        EnsureBlackScreenGroup();
+        StopAllCoroutines();
         StartCoroutine(FadeScreenRoutine(targetAlpha));
     }
 
@@ -45,7 +52,7 @@ public class UIManager : MonoBehaviour
     {
         if (blackScreenGroup == null)
         {
-            Debug.LogError("UIManager : CanvasGroup non assigné. Le fondu échoue.");
+            Debug.LogWarning("UIManager : CanvasGroup non assigné. Assignez Black Screen Group dans l'Inspector ou ajoutez un CanvasGroup à l'écran noir.");
             yield break;
         }
 

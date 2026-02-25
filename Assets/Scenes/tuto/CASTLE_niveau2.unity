@@ -3566,7 +3566,6 @@ MonoBehaviour:
     m_Bits: 64
   handPoint: {fileID: 0}
   showGizmo: 1
-  CollectedItems: []
 --- !u!50 &932868023
 Rigidbody2D:
   serializedVersion: 5
@@ -3653,7 +3652,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 3
-  jumpForce: 6
+  jumpForce: 6.5
   groundCheck: {fileID: 1786215793}
   groundCheckRadius: 0.2
   groundRayLength: 0.25
@@ -26431,6 +26430,8 @@ MonoBehaviour:
   unlockTargetSceneToo: 1
   player: {fileID: 932868025}
   wheelchair: {fileID: 1479838038}
+  playerObject: {fileID: 0}
+  wheelchairObject: {fileID: 0}
   requireBothInside: 1
   logEvents: 1
 --- !u!61 &1417678350
@@ -26746,7 +26747,6 @@ MonoBehaviour:
     m_Bits: 64
   handPoint: {fileID: 0}
   showGizmo: 1
-  CollectedItems: []
 --- !u!60 &1479838040
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -27078,7 +27078,7 @@ Transform:
   m_GameObject: {fileID: 1529716810}
   serializedVersion: 2
   m_LocalRotation: {x: 0.07773312, y: -0.080035634, z: -0.71287125, w: 0.69236296}
-  m_LocalPosition: {x: 6.62, y: -0.72, z: -0.19}
+  m_LocalPosition: {x: 6.62, y: -0.74, z: -0.19}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

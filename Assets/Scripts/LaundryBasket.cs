@@ -68,10 +68,12 @@ public class LaundryBasket : MonoBehaviour, IInteractable
     [Header("Ограничения")]
     public bool onlyWheelchairPlayer = true; // Только игрок на коляске может взаимодействовать
     
-    private bool hasInteracted = false; // Флаг для скрытия подсказки после первого взаимодействия
+    private bool hasInteracted = false;
+    private bool sortingGameCompleted = false;
 
     public void Interact(PlayerInteraction player)
     {
+        if (sortingGameCompleted) return;
         Debug.Log("LaundryBasket: Interact вызван! Руки: " + GlobalPlayerState.currentItem);
         Debug.Log($"LaundryBasket: Игрок: {player.gameObject.name}, Тип: {player.playerType}, onlyWheelchairPlayer: {onlyWheelchairPlayer}");
         
@@ -293,8 +295,8 @@ public class LaundryBasket : MonoBehaviour, IInteractable
 
     void FinishSorting()
     {
+        sortingGameCompleted = true;
         Debug.Log("LaundryBasket: FinishSorting вызван!");
-        
         if (sortingCanvas != null)
     {
         sortingCanvas.SetActive(false);
