@@ -1,34 +1,43 @@
-using UnityEngine;
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 // À attacher sur le joueur (ou n'importe quel agent ramasseur)
 public class ItemPickup : MonoBehaviour
 {
-    [Header("Interaction")] 
+    [Header("Interaction")]
     public KeyCode pickupKey = KeyCode.E;       // touche pour ramasser / lâcher
     public float pickupRadius = 1.0f;           // rayon de détection
     public LayerMask pickableLayer;             // layer des objets ramassables
 
-    [Header("Attach Point")] 
+    [Header("Attach Point")]
     public Transform handPoint;                 // où l'objet sera attaché
 
-    [Header("UI/Feedback (optionnel)")] 
+    [Header("UI/Feedback (optionnel)")]
     public bool showGizmo = true;
 
-    PickableItem heldItem;
-    
-    /// <summary> Objet actuellement tenu (pour la caisse / quêtes). </summary>
-    public PickableItem HeldItem => heldItem;
-    /// <summary> ID de l'objet tenu, ou null si rien. </summary>
-    public string HeldItemId => heldItem != null ? heldItem.itemId : null;
-    
-    // Événement déclenché quand un objet est collecté (pour QuestObjectUnlock)
+    [Header("--- MODES DE FONCTIONNEMENT ---")]
+    [Tooltip("SCRIPT 1 : L'objet va directement dans l'inventaire et disparaît de la scène.")]
+    public bool useInventoryMode = true;
+
+    [Tooltip("SCRIPT 2 : Le joueur prend l'objet physiquement en main, le garde et peut le lâcher.")]
+    public bool useHoldMode = false;
+
+    [Header("Options Mode Inventaire (Script 1)")]
+    [Tooltip("Si vrai, en mode inventaire, l'objet est juste désactivé (pas détruit).")]
+    public bool hideCollectedObject = true;
+
+    [Header("Données Collecte")]
+    public List<string> collectedItemIds = new List<string>();
+    public List<string> CollectedItems => collectedItemIds;
+
+    // Événement déclenché quand un objet est collecté
     public event Action<PickableItem> onItemCollected;
-    
-    // Liste des IDs des objets collectés
-    private List<string> collectedItems = new List<string>();
-    public List<string> CollectedItems => collectedItems;
+
+    // --- PROPRIÉTÉS SCRIPT 2 ---
+    PickableItem heldItem;
+    public PickableItem HeldItem => heldItem;
+    public string HeldItemId => heldItem != null ? heldItem.itemId : null;
 
     void Update()
     {
@@ -38,14 +47,15 @@ public class ItemPickup : MonoBehaviour
             {
                 TryPickupNearest();
             }
-            else
+            else if (useHoldMode)
             {
+                // On lâche l'objet seulement si le mode "Tenir en main" est activé
                 DropHeldItem();
             }
         }
 
-        // Optionnel: aligner l'objet porté sur la main à chaque frame
-        if (heldItem != null && handPoint != null)
+        // Aligner l'objet porté sur la main à chaque frame si on est en mode "Hold"
+        if (useHoldMode && heldItem != null && handPoint != null)
         {
             heldItem.transform.position = handPoint.position;
         }
@@ -73,17 +83,37 @@ public class ItemPickup : MonoBehaviour
             if (item != null)
             {
                 Transform holder = handPoint != null ? handPoint : transform;
-                item.OnPicked(holder);
-                heldItem = item;
-                
-                // Ajoute l'itemId à la liste des objets collectés
+
+                // On attache physiquement l'objet seulement si on est en mode "Hold"
+                bool attachToHolder = useHoldMode;
+                item.OnPicked(holder, attachToHolder);
+
+                // Ajout de l'ID à l'historique
                 if (!string.IsNullOrEmpty(item.itemId))
                 {
-                    collectedItems.Add(item.itemId);
+                    collectedItemIds.Add(item.itemId);
                 }
-                
-                // Déclenche l'événement de collecte
+
                 onItemCollected?.Invoke(item);
+
+                // --- LOGIQUE SCRIPT 1 (INVENTAIRE) ---
+                if (useInventoryMode)
+                {
+                    if (hideCollectedObject)
+                    {
+                        item.gameObject.SetActive(false);
+                    }
+                }
+
+                // --- LOGIQUE SCRIPT 2 (TENIR EN MAIN) ---
+                if (useHoldMode)
+                {
+                    heldItem = item;
+                }
+                else
+                {
+                    heldItem = null;
+                }
             }
         }
     }
@@ -95,12 +125,14 @@ public class ItemPickup : MonoBehaviour
         heldItem = null;
     }
 
-    /// <summary> Appelé par ReplaceOnPickup (ou autre) quand un objet est "ramassé" sans passer par TryPickupNearest — déclenche onItemCollected. </summary>
+    // Permet d'enregistrer "manuellement" un objet collecté depuis un autre script
     public void NotifyItemCollected(PickableItem item)
     {
         if (item == null) return;
         if (!string.IsNullOrEmpty(item.itemId))
-            collectedItems.Add(item.itemId);
+        {
+            collectedItemIds.Add(item.itemId);
+        }
         onItemCollected?.Invoke(item);
     }
 
