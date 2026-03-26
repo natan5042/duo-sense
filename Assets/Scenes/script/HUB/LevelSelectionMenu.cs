@@ -129,6 +129,12 @@ public class LevelSelectionMenu : MonoBehaviour
         {
             CloseMenu();
         }
+
+        if (GetComponent<Canvas>().enabled)
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
     }
 
     private void LoadLevel(string sceneName, int index)

@@ -101,6 +101,8 @@ public class LevelDisplayInteraction : MonoBehaviour, IInteractable
         // Ouvrir le menu des niveaux
         if (menuCanvas != null)
         {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
             menuCanvas.enabled = true;
             Time.timeScale = 0f; // Mettre le jeu en pause
             onMenuOpened?.Invoke();

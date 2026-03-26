@@ -35,12 +35,19 @@ public class SupermarketQuestManager : MonoBehaviour
     [Tooltip("Échelle des produits sur le comptoir (réduire si trop gros, ex: 0.15)")]
     public float counterItemScale = 0.15f;
 
+    [Header("Progression liste de courses")]
+    [Tooltip("Si activé, la quête 'Acheter les produits' progresse dès le ramassage des produits (sans passer par la caisse).")]
+    public bool countShoppingOnPickup = true;
+    [Tooltip("Si countShoppingOnPickup est activé, désactive l'incrément à la caisse pour éviter le double comptage.")]
+    public bool allowCheckoutScanProgress = false;
+
     private Quest obstacleQuest;
     private Quest shoppingQuest;
     private int boardStepIndex = 0;
     private int rampStepIndex = 1;
     private Dictionary<string, int> itemIdToStepIndex = new Dictionary<string, int>();
     private bool shoppingQuestAdded;
+    private readonly Dictionary<string, int> pickupProgressCounts = new Dictionary<string, int>();
 
     [System.Serializable]
     public class ShopItemEntry
@@ -131,10 +138,18 @@ public class SupermarketQuestManager : MonoBehaviour
                 q.CompleteStep(rampStepIndex);
         }
 
-        if (item.itemId == shoppingListItemId && !shoppingQuestAdded)
+        string itemIdTrimmed = item.itemId.Trim();
+
+        if (itemIdTrimmed.Equals(shoppingListItemId, System.StringComparison.OrdinalIgnoreCase) && !shoppingQuestAdded)
         {
             AddShoppingListQuest();
             shoppingQuestAdded = true;
+        }
+
+        if (countShoppingOnPickup)
+        {
+            EnsureShoppingQuestIfNeeded(itemIdTrimmed);
+            TryProgressShoppingFromPickup(itemIdTrimmed);
         }
     }
 
@@ -156,6 +171,7 @@ public class SupermarketQuestManager : MonoBehaviour
 
         shoppingQuest = new Quest("Acheter les produits");
         itemIdToStepIndex.Clear();
+        pickupProgressCounts.Clear();
         for (int i = 0; i < shoppingList.Count; i++)
         {
             var entry = shoppingList[i];
@@ -164,9 +180,15 @@ public class SupermarketQuestManager : MonoBehaviour
             int count = entry.requiredCount > 0 ? entry.requiredCount : 1;
             shoppingQuest.AddStepWithCount(name + (count > 1 ? " x" + count : ""), count, "");
             itemIdToStepIndex[entry.itemId.ToLowerInvariant()] = shoppingQuest.steps.Count - 1;
+            pickupProgressCounts[entry.itemId.ToLowerInvariant()] = 0;
         }
         QuestSystem.Instance.AddQuest(shoppingQuest);
         Debug.Log("SupermarketQuestManager: Liste de courses ajoutée aux quêtes.");
+
+        if (countShoppingOnPickup)
+        {
+            RebuildShoppingProgressFromCollectedItems();
+        }
     }
 
     private void DefaultShoppingList()
@@ -197,7 +219,10 @@ public class SupermarketQuestManager : MonoBehaviour
         string key = itemId.ToLowerInvariant();
         if (!itemIdToStepIndex.TryGetValue(key, out int stepIndex)) return;
 
-        shoppingQuest.IncrementStepCount(stepIndex, 1);
+        if (!countShoppingOnPickup || allowCheckoutScanProgress)
+        {
+            shoppingQuest.IncrementStepCount(stepIndex, 1);
+        }
         if (holder != null && holder.HeldItem != null && holder.HeldItem.itemId == itemId)
         {
             var obj = holder.HeldItem.gameObject;
@@ -234,5 +259,96 @@ public class SupermarketQuestManager : MonoBehaviour
         foreach (var c in obj.GetComponentsInChildren<Collider2D>(true))
             if (c != null) c.enabled = false;
         if (pickable != null) pickable.enabled = false;
+    }
+
+    private void EnsureShoppingQuestIfNeeded(string itemId)
+    {
+        if (shoppingQuestAdded) return;
+        if (string.IsNullOrWhiteSpace(itemId)) return;
+
+        bool isShoppingProduct = IsShoppingProductId(itemId);
+        if (!isShoppingProduct) return;
+
+        shoppingQuestAdded = true;
+        AddShoppingListQuest();
+    }
+
+    private bool IsShoppingProductId(string itemId)
+    {
+        if (string.IsNullOrWhiteSpace(itemId)) return false;
+        if (shoppingList == null || shoppingList.Count == 0)
+        {
+            DefaultShoppingList();
+        }
+
+        string id = itemId.Trim();
+        for (int i = 0; i < shoppingList.Count; i++)
+        {
+            var entry = shoppingList[i];
+            if (entry == null || string.IsNullOrWhiteSpace(entry.itemId)) continue;
+            if (entry.itemId.Trim().Equals(id, System.StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+        return false;
+    }
+
+    private void TryProgressShoppingFromPickup(string itemId)
+    {
+        if (shoppingQuest == null || string.IsNullOrWhiteSpace(itemId)) return;
+        string key = itemId.ToLowerInvariant();
+        if (!itemIdToStepIndex.TryGetValue(key, out int stepIndex)) return;
+
+        int required = 0;
+        if (shoppingQuest.stepRequiredCounts != null && stepIndex < shoppingQuest.stepRequiredCounts.Count)
+            required = shoppingQuest.stepRequiredCounts[stepIndex];
+        if (required <= 0) required = 1;
+
+        if (!pickupProgressCounts.ContainsKey(key))
+            pickupProgressCounts[key] = 0;
+        if (pickupProgressCounts[key] >= required) return;
+
+        pickupProgressCounts[key]++;
+        shoppingQuest.IncrementStepCount(stepIndex, 1);
+    }
+
+    private void RebuildShoppingProgressFromCollectedItems()
+    {
+        if (shoppingQuest == null) return;
+        if (pickupSources == null || pickupSources.Count == 0) return;
+
+        foreach (var kv in itemIdToStepIndex)
+        {
+            string itemId = kv.Key;
+            int stepIndex = kv.Value;
+
+            int required = 0;
+            if (shoppingQuest.stepRequiredCounts != null && stepIndex < shoppingQuest.stepRequiredCounts.Count)
+                required = shoppingQuest.stepRequiredCounts[stepIndex];
+            if (required <= 0) required = 1;
+
+            int alreadyCounted = 0;
+            pickupProgressCounts.TryGetValue(itemId, out alreadyCounted);
+            int shouldCount = 0;
+            for (int p = 0; p < pickupSources.Count; p++)
+            {
+                var src = pickupSources[p];
+                if (src == null || src.CollectedItems == null) continue;
+                for (int c = 0; c < src.CollectedItems.Count; c++)
+                {
+                    var id = src.CollectedItems[c];
+                    if (string.IsNullOrWhiteSpace(id)) continue;
+                    if (id.Trim().Equals(itemId, System.StringComparison.OrdinalIgnoreCase))
+                        shouldCount++;
+                }
+            }
+
+            int target = Mathf.Min(required, shouldCount);
+            int toAdd = target - alreadyCounted;
+            if (toAdd <= 0) continue;
+
+            for (int i = 0; i < toAdd; i++)
+                shoppingQuest.IncrementStepCount(stepIndex, 1);
+            pickupProgressCounts[itemId] = target;
+        }
     }
 }

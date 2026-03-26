@@ -1138,7 +1138,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dddb73ed735d5f848a7ddc5577c35acb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractionHint
-  hintText: Press M to sort clothes
+  hintText: Appuyez sur M
   interactionDistance: 2
   hintOffset: {x: 0, y: 1.5, z: 0}
   playerTag: Player
@@ -1575,7 +1575,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dddb73ed735d5f848a7ddc5577c35acb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractionHint
-  hintText: Appuyez E
+  hintText: Appuyez sur E
   interactionDistance: 3
   hintOffset: {x: 0, y: 1, z: 0}
   playerTag: Player
@@ -18846,7 +18846,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dddb73ed735d5f848a7ddc5577c35acb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractionHint
-  hintText: Appuie sur E pour chercher
+  hintText: Appuyez sur E
   interactionDistance: 2
   hintOffset: {x: 0, y: 1.5, z: 0}
   playerTag: Player
@@ -27268,7 +27268,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dddb73ed735d5f848a7ddc5577c35acb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractionHint
-  hintText: Appuie sur E pour cuisiner
+  hintText: Appuyez sur E
   interactionDistance: 2
   hintOffset: {x: 0, y: 1.5, z: 0}
   playerTag: Player
@@ -27787,7 +27787,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dddb73ed735d5f848a7ddc5577c35acb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractionHint
-  hintText: Press E to use washing machine
+  hintText: Appuyez sur M
   interactionDistance: 3
   hintOffset: {x: 0, y: 1, z: 0}
   playerTag: Player

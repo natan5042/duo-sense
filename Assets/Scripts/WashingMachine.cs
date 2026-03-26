@@ -159,10 +159,7 @@ public class WashingMachine : MonoBehaviour, IInteractable
         
         isWashing = false;
         hasFinished = true;
-        
-        // Обновляем квест
-        UpdateQuestStep(2); // Шаг 2: Дождись окончания стирки - выполнен
-        
+
         Debug.Log("Стирка готова!");
     }
 
